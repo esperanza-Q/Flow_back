@@ -1,13 +1,16 @@
 package org.example.flow.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "shop_info")
 @Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 
@@ -20,7 +23,7 @@ public class ShopInfo {
     // FK (User와 연결) 1:1 관계 (단방향)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User userId;
+    private User user;
 
     @Column(columnDefinition = "TEXT")
     private String explanation;   // 매장 설명
@@ -33,5 +36,14 @@ public class ShopInfo {
 
     @Column(name = "partnership_cost", nullable = false)
     private Integer partnershipCost;   // 파트너쉽 비용
+
+    @OneToMany(mappedBy = "shopInfo", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<RecommendShop> recommendShops;
+
+    @OneToMany(mappedBy = "shopInfo", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<PaymentCheck> paymentChecks;
+
 
 }
