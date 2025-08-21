@@ -21,23 +21,23 @@ public class Place {
     // FK: ShopInfo (한 장소는 한 매장만 가질 수 있음 → 1:1 관계)
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shop_info_id", nullable = false)
-    private ShopInfo shopInfoId;
+    private ShopInfo shopInfo;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String location;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private category category;
+//    @Column(nullable = false)
+    private CATEGORY category;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private Double latitude;
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private Double longitude;
 
 
-    public enum category {
+    public enum CATEGORY {
         FOOD,
         CAFE,
         LIFE,
