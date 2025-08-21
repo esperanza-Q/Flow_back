@@ -3,6 +3,8 @@ package org.example.flow.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "business_hours")
 @Getter
@@ -19,7 +21,7 @@ public class BusinessHours {
     // FK: ShopInfo (한 매장에는 여러 개의 영업시간이 있을 수 있음 → N:1)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shop_info_id", nullable = false)
-    private ShopInfo shopInfo;
+    private ShopInfo shopInfoId;
 
     // 요일 (ENUM)
     @Enumerated(EnumType.STRING)
@@ -28,11 +30,11 @@ public class BusinessHours {
 
     // 오픈 시간
     @Column(name = "open_time", nullable = false)
-    private String openTime;   // ex) "09:00"
+    private Date openTime;   // ex) "09:00"
 
     // 마감 시간
     @Column(name = "close_time", nullable = false)
-    private String closeTime;  // ex) "18:00"
+    private Date closeTime;  // ex) "18:00"
 
     // 내부 ENUM: 요일
     public enum Week {

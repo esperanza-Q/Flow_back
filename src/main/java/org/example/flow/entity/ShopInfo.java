@@ -14,13 +14,13 @@ import lombok.AllArgsConstructor;
 public class ShopInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "shop_info_id")   // PK
+    @Column(name = "shop_info_id", nullable = false)   // PK
     private Long shopInfoId;
 
     // FK (User와 연결) 1:1 관계 (단방향)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    private User userId;
 
     @Column(nullable = false, length = 100)
     private String location;   // 매장 위치
