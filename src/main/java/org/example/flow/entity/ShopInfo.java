@@ -22,9 +22,6 @@ public class ShopInfo {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User userId;
 
-    @Column(nullable = false, length = 100)
-    private String location;   // 매장 위치
-
     @Column(columnDefinition = "TEXT")
     private String explanation;   // 매장 설명
 
