@@ -20,12 +20,12 @@ public class Visited {
     // FK: User (어떤 유저가 방문했는지)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private User userId;
+    private User user;
 
     // FK: ShopInfo (어떤 매장을 방문했는지)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shop_info_id", nullable = false)
-    private ShopInfo shopInfoId;
+    private ShopInfo shopInfo;
 
     // 방문 시각
     @Column(name = "created_at", nullable = false)

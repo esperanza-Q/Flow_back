@@ -19,7 +19,7 @@ public class ShopImage {
     // FK: ShopInfo (한 매장은 여러 이미지를 가질 수 있음 → N:1 관계)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shop_info_id", nullable = false)
-    private ShopInfo shopInfoId;
+    private ShopInfo shopInfo;
 
     // 이미지 경로
     @Column(nullable = false, length = 1000)

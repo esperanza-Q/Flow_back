@@ -19,7 +19,7 @@ public class BenefitReq {
     // FK: ShopInfo (여러 적립 조건이 하나의 매장에 속함 → N:1)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shop_info_id", nullable = false)
-    private ShopInfo shopInfoId;
+    private ShopInfo shopInfo;
 
     // ENUM: SEED / COUPON
     @Enumerated(EnumType.STRING)

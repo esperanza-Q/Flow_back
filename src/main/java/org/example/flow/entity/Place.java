@@ -1,48 +1,46 @@
 package org.example.flow.entity;
 
-
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 @Entity
-@Table(name = "shop_info")
-@Data
-@AllArgsConstructor
+@Table(name = "place") // ← 테이블명 올바르게
+@Getter @Setter
 @NoArgsConstructor
-
+@AllArgsConstructor
 public class Place {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="place_id", nullable = false)
     private Long placeId;
 
-    // FK: ShopInfo (한 장소는 한 매장만 가질 수 있음 → 1:1 관계)
+    // 한 장소는 한 매장만 → 1:1
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shop_info_id", nullable = false)
+    @JoinColumn(name = "shop_info_id", nullable = false, unique = true) // ← unique로 1:1 보장
     private ShopInfo shopInfo;
 
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private String location;
 
     @Enumerated(EnumType.STRING)
-//    @Column(nullable = false)
-    private CATEGORY category;
+    @Column(nullable = false, length = 20)
+    private Category category;
 
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private Double latitude;
 
-//    @Column(nullable = false)
+    @Column(nullable = false)
     private Double longitude;
 
-
-    public enum CATEGORY {
+    public enum Category {
         FOOD,
         CAFE,
         LIFE,
-        FASHIOPN,
-        ECT
+        FASHION,
+        ETC
     }
-
 }

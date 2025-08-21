@@ -21,7 +21,7 @@ public class BusinessHours {
     // FK: ShopInfo (한 매장에는 여러 개의 영업시간이 있을 수 있음 → N:1)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shop_info_id", nullable = false)
-    private ShopInfo shopInfoId;
+    private ShopInfo shopInfo;
 
     // 요일 (ENUM)
     @Enumerated(EnumType.STRING)

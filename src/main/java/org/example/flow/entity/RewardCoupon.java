@@ -19,7 +19,7 @@ public class RewardCoupon {
     // FK: ShopInfo (한 매장에 여러 보상 쿠폰 가능 → N:1 관계)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "shop_info_id", nullable = false)
-    private ShopInfo shopInfoId;
+    private ShopInfo shopInfo;
 
     // 쿠폰 이름
     @Column(nullable = false, length = 100)
