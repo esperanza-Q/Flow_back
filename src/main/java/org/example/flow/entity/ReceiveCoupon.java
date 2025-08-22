@@ -27,12 +27,13 @@ public class ReceiveCoupon {
 
 //    @Enumerated(EnumType.STRING)
 //    private TYPE type;
-
+    @Column(name = "receive_at")
     private LocalDateTime receiveAt;
 
     @PrePersist //jpa의 콜백 메서드. 엔터티가 처음 저장되기 직전에 실행. 즉, 새로운 row 생성시 현재 날짜 저장
     protected void onCreate() { this.receiveAt = LocalDateTime.now(); }
 
+    @Column(name = "used")
     private Boolean used = false;
 
 
