@@ -24,7 +24,7 @@ public class BenefitReq {
     // ENUM: SEED / COUPON
     @Enumerated(EnumType.STRING)
     @Column(name = "req_name", nullable = false, length = 20)
-    private ReqName ReqName;
+    private ReqName reqName;
 
     // 상세 정보 (SEED일 때만 필요할 수 있음)
     @Column(name = "seed_detail")
