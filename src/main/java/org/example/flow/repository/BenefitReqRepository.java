@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface BenefitReqRepository extends JpaRepository<BenefitReq, Long> {
     List<BenefitReq> findByShopInfo(ShopInfo shopInfo);
-
+    List<BenefitReq> findByShopInfo_ShopInfoId(Long shopInfoId);
     Optional<BenefitReq> findFirstByShopInfoAndReqNameOrderByBenefitReqIdDesc(
             ShopInfo shopInfo, BenefitReq.ReqName reqName
     );

@@ -21,6 +21,9 @@ public class Place {
     @JoinColumn(name = "shop_info_id", nullable = false, unique = true) // ← unique로 1:1 보장
     private ShopInfo shopInfo;
 
+    @Column(nullable = false, length = 200)
+    private String name;
+
     @Column(nullable = false)
     private String location;
 
@@ -28,7 +31,7 @@ public class Place {
     @Column(nullable = false, length = 20)
     private Category category;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Double latitude;
 
     @Column(nullable = false)
@@ -39,6 +42,20 @@ public class Place {
         CAFE,
         LIFE,
         FASHION,
-        ECT
+        ECT;
+
+        public static Category fromKorean(String koreanCategory) {
+            if (koreanCategory.contains("음식")) {
+                return FOOD;
+            } else if (koreanCategory.contains("카페")) {
+                return CAFE;
+            } else if (koreanCategory.contains("생활")) {
+                return LIFE;
+            } else if (koreanCategory.contains("패션")) {
+                return FASHION;
+            } else {
+                return ECT;
+            }
+        }
     }
 }
