@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Entity
-@Table(name = "receiveVisitCoupon")
+@Table(name = "receive_visit_coupon")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue("VISIT")
 public class ReceiveVisitCoupon extends ReceiveCoupon {
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "shopInfo_id")
+    @JoinColumn(name = "shop_info_id")
     @JsonBackReference
     private ShopInfo shopInfo;
 }
