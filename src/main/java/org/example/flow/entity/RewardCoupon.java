@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "reward_coupon")
+@Table(name = "rewardCoupon")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,7 +13,7 @@ public class RewardCoupon {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reward_coupon_id", nullable = false)
+    @Column(name = "rewardCoupon_id", nullable = false)
     private Long rewardCouponId;   // PK
 
     // FK: ShopInfo (한 매장에 여러 보상 쿠폰 가능 → N:1 관계)

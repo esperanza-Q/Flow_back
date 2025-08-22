@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @DiscriminatorValue("REWARD")
 public class ReceiveRewardCoupon extends ReceiveCoupon {
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "receiveCoupon_id")
+    @JoinColumn(name = "rewardCoupon_id")
     @JsonBackReference
     private RewardCoupon rewardCoupon;
 
