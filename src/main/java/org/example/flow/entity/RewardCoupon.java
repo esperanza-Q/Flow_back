@@ -13,7 +13,7 @@ public class RewardCoupon {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reward_coupon_id")
+    @Column(name = "reward_coupon_id", nullable = false)
     private Long rewardCouponId;   // PK
 
     // FK: ShopInfo (한 매장에 여러 보상 쿠폰 가능 → N:1 관계)
@@ -30,6 +30,6 @@ public class RewardCoupon {
     private Integer amount;
 
     // 쿠폰 이미지
-    @Column(length = 1000)
+    @Column(nullable = false, length = 1000)
     private String image;
 }

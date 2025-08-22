@@ -1,9 +1,12 @@
 package org.example.flow.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")  // MySQL 예약어 user 피하기
@@ -21,7 +24,7 @@ public class User {
     private String nickname;
 
     @Column(nullable = false, length = 50)
-    private String username;
+    private String email;
 
     @Column(nullable = false)
     private String password;
@@ -37,4 +40,22 @@ public class User {
         GENERAL,
         SHOP
     }
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<ReceiveCoupon> receiveCoupons;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Funded> fundeds;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<RecommendShop> recommendShops;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<PaymentCheck> paymentChecks;
+
+
 }

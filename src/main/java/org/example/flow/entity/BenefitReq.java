@@ -13,8 +13,8 @@ public class BenefitReq {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "point_req_id")
-    private Long pointReqId;   // PK
+    @Column(name = "benefit_req_id", nullable = false)
+    private Long benefitReqId;   // PK
 
     // FK: ShopInfo (여러 적립 조건이 하나의 매장에 속함 → N:1)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -23,8 +23,8 @@ public class BenefitReq {
 
     // ENUM: SEED / COUPON
     @Enumerated(EnumType.STRING)
-    @Column(name = "point_req_name", nullable = false, length = 20)
-    private PointReqName pointReqName;
+    @Column(name = "req_name", nullable = false, length = 20)
+    private ReqName ReqName;
 
     // 상세 정보 (SEED일 때만 필요할 수 있음)
     @Column(name = "seed_detail")
@@ -43,7 +43,7 @@ public class BenefitReq {
     private String couponImage;
 
     // ENUM 정의
-    public enum PointReqName {
+    public enum ReqName {
         SEED, COUPON
     }
 }

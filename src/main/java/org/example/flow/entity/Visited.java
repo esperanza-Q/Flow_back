@@ -14,7 +14,7 @@ public class Visited {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "visited_id")
+    @Column(name = "visited_id", nullable = false)
     private Long visitedId;   // PK
 
     // FK: User (어떤 유저가 방문했는지)
