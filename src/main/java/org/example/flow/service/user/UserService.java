@@ -6,8 +6,10 @@ import org.example.flow.dto.user.request.LoginRequestDTO;
 import org.example.flow.dto.user.request.SignupRequestDTO;
 import org.example.flow.dto.user.response.LoginResponseDTO;
 import org.example.flow.dto.user.response.SignupResponseDTO;
+import org.example.flow.entity.Place;
 import org.example.flow.entity.ShopInfo;
 import org.example.flow.entity.User;
+import org.example.flow.repository.PlaceRepository;
 import org.example.flow.repository.ShopInfoRepository;
 import org.example.flow.repository.UserRepository;
 import org.example.flow.security.CustomUserDetails;
@@ -19,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -27,12 +30,14 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ShopInfoRepository shopInfoRepository;
+    private final PlaceRepository placeRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository, PlaceRepository placeRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.shopInfoRepository = shopInfoRepository;
+        this.placeRepository = placeRepository;
     }
 
     // 🔑 회원가입 (비밀번호 암호화 후 저장)
@@ -50,9 +55,30 @@ public class UserService implements UserDetailsService {
         // 만약 회원의 role이 SHOP이라면 ShopInfo도 생성
         if (user.getRole() == User.Role.SHOP) {
             ShopInfo shopInfo = new ShopInfo();
+//            Place place = new Place();
             shopInfo.setUser(user);
+            shopInfo.setMonthPayment(0);
+
+            LocalDate now = LocalDate.now();
+            int currentMonth = now.getMonthValue(); // 1 ~ 12 값 반환
+
+            shopInfo.setNowMonth(currentMonth);
+            shopInfo.setPartnershipCost(0);
 
             ShopInfo savedShopInfo = shopInfoRepository.save(shopInfo);
+
+            Place place = Place.builder()
+                    .shopInfo(shopInfo)
+                    .location(requestDto.getLocation())
+                    .category(requestDto.getCategory())
+                    .longitude(requestDto.getLongitude())
+                    .latitude(requestDto.getLatitude())
+                    .build();
+
+            place.setShopInfo(shopInfo);
+            place.setLocation(requestDto.getLocation());
+
+            placeRepository.save(place);
             shopInfoId = savedShopInfo.getShopInfoId();
         }
 

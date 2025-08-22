@@ -1,16 +1,14 @@
 package org.example.flow.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "place") // ← 테이블명 올바르게
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Place {
 
     @Id
@@ -41,6 +39,6 @@ public class Place {
         CAFE,
         LIFE,
         FASHION,
-        ETC
+        ECT
     }
 }
