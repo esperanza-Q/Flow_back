@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 "/test/**",
                                 "/actuator/health",
                                 "/actuator/info",
-                                "/api/user/**"
+                                "/api/user/**",
+                                "/api/shopMypage/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
