@@ -56,3 +56,7 @@ tasks.named('test') {
 springBoot {
     mainClass = "org.example.flow.FlowApplication" // 실제 Main 클래스 경로
 }
+
+tasks.named('bootJar') {
+    mainClass.set("org.example.flow.FlowApplication")
+}
