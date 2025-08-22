@@ -19,7 +19,9 @@ jobs:
       - name: Build with Gradle Wrapper -> jar 파일 생성
         run: |
           chmod 544 ./gradlew
-          run: ./gradlew clean build -x test
+          # bootJar mainClass 명시 (Gradle 8 + Spring Boot 3 안전한 방법)
+          echo "tasks.named('bootJar') { mainClass.set('org.example.flow.FlowApplication') }" >> build.gradle
+          ./gradlew clean build -x test --info
           
 
       - name: Transfer Build File using SCP -> jar 파일 원격 서버 복사
