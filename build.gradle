@@ -52,3 +52,7 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+springBoot {
+    mainClass = "org.example.flow.FlowApplication" // 실제 Main 클래스 경로
+}
