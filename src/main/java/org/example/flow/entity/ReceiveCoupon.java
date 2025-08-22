@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "receive_coupon")
+@Table(name = "receiveCoupon")
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public class ReceiveCoupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="receive_coupon_id", nullable = false)
+    @Column(name="receiveCoupon_id", nullable = false)
     private Long receiveCouponId;
 
 //    @Enumerated(EnumType.STRING)

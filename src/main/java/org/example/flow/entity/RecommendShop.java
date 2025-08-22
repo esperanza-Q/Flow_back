@@ -27,7 +27,7 @@ public class RecommendShop {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "shopInfo_id")
+    @JoinColumn(name = "shop_info_id")
     @JsonBackReference
     private ShopInfo shopInfo;
 

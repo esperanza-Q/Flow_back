@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Entity
-@Table(name = "receive_visit_coupon")
+@Table(name = "receiveVisit_coupon")
 @Getter
 @Setter
 @NoArgsConstructor
