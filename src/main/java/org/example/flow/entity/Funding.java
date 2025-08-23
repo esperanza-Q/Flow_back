@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -22,7 +23,7 @@ public class Funding {
     @Column(name="funding_id", nullable = false)
     private Long fundingId;
 
-    private String name;
+    private String title;
 
     private String organizer;
 
@@ -31,6 +32,8 @@ public class Funding {
     private Integer nowSeed;
 
     private String image;
+
+    private LocalDate endDate;
 
     private String introduction;
 
