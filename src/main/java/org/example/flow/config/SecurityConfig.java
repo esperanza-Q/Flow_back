@@ -52,7 +52,7 @@ public class SecurityConfig {
                                 "/actuator/info",
                                 "/api/user/**",
                                 "/api/shopMypage/**",
-                                "api/health"
+                                "/api/health"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
