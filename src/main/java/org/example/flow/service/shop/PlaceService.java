@@ -16,9 +16,7 @@ public class PlaceService {
 
     private final PlaceRepository placeRepository;
 
-    /**
-     * 성북구 전체 마커 (좌표 있는 것만)
-     */
+    /** 성북구 전체 마커 (좌표 있는 것만) */
     public List<PlaceMarkerResponse> getSeongbukAll() {
         return placeRepository.findByLocationContaining("성북구").stream()
                 .filter(this::hasCoordinates)
@@ -30,13 +28,13 @@ public class PlaceService {
      * (옵션) 구/카테고리 검색
      * - district: "성북구" 같은 구 단위 텍스트 (null/blank 허용)
      * - category: Place.Category (null 허용)
+     * 레포지토리 시그니처가 enum을 받으므로 enum 그대로 전달
      */
     public List<PlaceMarkerResponse> search(String district, Place.Category category) {
+        final boolean hasDistrict = district != null && !district.isBlank();
+        final boolean hasCategory = category != null;
+
         List<Place> rows;
-
-        boolean hasDistrict = district != null && !district.isBlank();
-        boolean hasCategory = category != null;
-
         if (hasDistrict && hasCategory) {
             rows = placeRepository.findByLocationContainingAndCategory(district, category);
         } else if (hasDistrict) {
@@ -60,32 +58,22 @@ public class PlaceService {
     }
 
     private PlaceMarkerResponse toMarker(Place p) {
-        // ShopInfo 가 없을 수 있으므로 null-safe 처리 (DTO가 Long라면 null 가능)
         Long shopInfoId = (p.getShopInfo() != null) ? p.getShopInfo().getShopInfoId() : null;
 
-        // 카테고리 소문자
-        String type = (p.getCategory() != null) ? p.getCategory().name().toLowerCase() : "ect";
+        // 카테고리 문자열(소문자). null이면 "etc"로
+        String type = (p.getCategory() != null) ? p.getCategory().name().toLowerCase() : "etc";
 
-        // 표시 이름: name 필드가 있으면 name, 없으면 location 사용
-        String title = (getSafeName(p) != null && !getSafeName(p).isBlank())
-                ? getSafeName(p)
+        // 타이틀: explanationTitle 우선, 없으면 location
+        String title = (p.getExplanationTitle() != null && !p.getExplanationTitle().isBlank())
+                ? p.getExplanationTitle()
                 : p.getLocation();
 
         return new PlaceMarkerResponse(
-                shopInfoId,          // null일 수 있음 (DTO 타입이 Long이어야 함)
+                shopInfoId,
                 type,
                 p.getLatitude(),
                 p.getLongitude(),
                 title
         );
-    }
-
-    // Place에 name 필드가 없을 수도 있으니 안전하게 분기
-    private String getSafeName(Place p) {
-        try {
-            return p.getName(); // Place에 name 필드가 있는 설계(권장)
-        } catch (NoSuchMethodError | RuntimeException e) {
-            return null; // name 없으면 null 반환하고 location으로 대체
-        }
     }
 }

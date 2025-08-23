@@ -17,6 +17,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,15 +27,19 @@ public class CouponService {
     private final ReceiveCouponRepository receiveCouponRepository;
     private final UserRepository userRepository;
 
+    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+    // ✅ 쿠폰 목록
     public CouponResponse getCoupons(Long userId) {
-        if (userRepository.findByUserId(userId) == null) {
-            throw new GeneralException(ErrorStatus.USER_NOT_FOUND);
-        }
+        // Optional 로 널 안전성 확보 (findByUserId 시그니처에 맞춰 조정)
+        Optional.ofNullable(userRepository.findByUserId(userId))
+                .orElseThrow(() -> new GeneralException(ErrorStatus.USER_NOT_FOUND));
+
         List<ReceiveCoupon> coupons = receiveCouponRepository.findByUser_UserId(userId);
         return CouponResponse.from(coupons);
     }
 
-    // ✅ 쿠폰 사용
+    // ✅ 쿠폰 사용   ‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+
     @Transactional
     public CouponUseResponse useCoupon(Long userId, Long receiveCouponId, Long shopInfoId) {
         ReceiveCoupon rc = receiveCouponRepository.findById(receiveCouponId)
@@ -51,26 +56,32 @@ public class CouponService {
         }
 
         String type;
-        if (rc instanceof ReceiveVisitCoupon visit) {
+        if (rc instanceof ReceiveVisitCoupon) {
+            ReceiveVisitCoupon visit = (ReceiveVisitCoupon) rc;
             type = "VISIT";
+
             if (shopInfoId == null) {
-                throw new GeneralException(ErrorStatus.SHOP_ID_REQUIRED); // 없으면 새로 정의
+                throw new GeneralException(ErrorStatus.SHOP_ID_REQUIRED);
             }
-            Long couponShopId = visit.getShopInfo().getShopInfoId();
-            if (!couponShopId.equals(shopInfoId)) {
-                throw new GeneralException(ErrorStatus.VISIT_SHOP_MISMATCH); // 없으면 새로 정의
+
+            // ⚠️ 엔티티 필드명에 맞춰 확인: getShopInfo() 가 일반적
+            Long couponShopId = null;
+            if (visit.getBenefitReq() != null && visit.getBenefitReq().getShopInfo() != null) {
+                couponShopId = visit.getBenefitReq().getShopInfo().getShopInfoId();
             }
+
+            if (couponShopId == null || !couponShopId.equals(shopInfoId)) {
+                throw new GeneralException(ErrorStatus.VISIT_SHOP_MISMATCH);
+            }
+
         } else if (rc instanceof ReceiveRewardCoupon) {
             type = "REWARD";
             // 추가 검증 없음
         } else {
-            // 다른 서브타입이 생길 가능성 대비
             type = rc.getClass().getSimpleName().toUpperCase();
         }
 
         rc.setUsed(true);
-        // 필요 시 사용 시각을 지금으로 찍고 싶다면(선택):
-        // rc.setReceiveAt(OffsetDateTime.now(ZoneOffset.UTC));
         receiveCouponRepository.save(rc);
 
         return CouponUseResponse.builder()

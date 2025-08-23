@@ -1,5 +1,6 @@
 package org.example.flow.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,8 +22,8 @@ public class Place {
     @JoinColumn(name = "shop_info_id", nullable = false, unique = true) // ← unique로 1:1 보장
     private ShopInfo shopInfo;
 
-    @Column(nullable = false, length = 200)
-    private String name;
+    @Column(name = "explanation_title", nullable = false, length = 100)
+    private String explanationTitle;
 
     @Column(nullable = false)
     private String location;

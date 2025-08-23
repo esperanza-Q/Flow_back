@@ -3,6 +3,7 @@ package org.example.flow.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.flow.repository.UserRepository;
 import org.example.flow.security.JwtTokenFilter;
 import org.example.flow.security.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -30,10 +31,11 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Bean
     public JwtTokenFilter jwtTokenFilter() {
-        return new JwtTokenFilter(jwtTokenProvider, userDetailsService);
+        return new JwtTokenFilter(jwtTokenProvider, userDetailsService, userRepository);
     }
 
     @Bean
@@ -53,7 +55,9 @@ public class SecurityConfig {
                                 "/api/user/**",
                                 "/api/shopMypage/**",
                                 "/api/shop/**",
-                                "/api/**"
+                                "/api/**",
+                                "/api/shopMypage/**",
+                                "/api/health"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

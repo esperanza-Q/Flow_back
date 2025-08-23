@@ -2,13 +2,15 @@ package org.example.flow.dto.shop.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
-@Builder
+@Getter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ShopDetailResponse {
 
     private ShopDto shop;
@@ -16,26 +18,26 @@ public class ShopDetailResponse {
     private List<RewardCouponDto> rewardCoupons;
     private List<BenefitRequirementDto> benefitRequirements;
 
-    @Data
-    @Builder
+    @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class ShopDto {
         private Long shopInfoId;
-        private String name;
+        private String explanationTitle;        // Place.explanationTitle or ShopInfo.explanationTitle
         private String location;
-        private String explanation;
+        private String explanationContent;  // ShopInfo.explanationContent
     }
 
-    @Data
-    @Builder
+    @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class ImageDto {
         private Long shopImageId;
-        private String imageUrl;
+        private String image;
     }
 
-    @Data
-    @Builder
+    @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class RewardCouponDto {
         private Long rewardCouponId;
@@ -43,11 +45,11 @@ public class ShopDetailResponse {
         private Integer amount;
     }
 
-    @Data
-    @Builder
+    @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class BenefitRequirementDto {
-        private Long pointReqId;
+        private Long benefitReqId;
         private String seedDetail;
         private Integer visitCount;
         private String couponType;

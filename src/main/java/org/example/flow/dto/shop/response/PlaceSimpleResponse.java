@@ -4,12 +4,11 @@ import lombok.*;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class PlaceNearbyResponse {
+public class PlaceSimpleResponse {
     private Long placeId;
-    private String explanationTitle;
+    private String explanationTitle; // ← 엔티티의 explanationTitle
     private String location;
-    private String category;     // ENUM → 문자열
+    private String category;         // ENUM → 문자열
     private Double latitude;
     private Double longitude;
-    private Double distanceMeters;
 }

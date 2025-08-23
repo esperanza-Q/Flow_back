@@ -2,13 +2,12 @@ package org.example.flow.controller.shop;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.flow.dto.shop.PlaceSimpleResponse;
 import org.example.flow.dto.shop.request.CreatePaymentSendRequest;
 import org.example.flow.dto.shop.response.PaymentSendResponse;
 import org.example.flow.dto.shop.response.PlaceNearbyResponse;
+import org.example.flow.dto.shop.response.PlaceSimpleResponse;
 import org.example.flow.dto.shop.response.ShopDetailResponse;
 import org.example.flow.service.shop.PaymentSendService;
-import org.example.flow.service.shop.PlaceImportService;
 import org.example.flow.service.shop.ShopService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,7 @@ import java.util.List;
 public class ShopPlaceController {
 
     private final PlaceQueryService placeQueryService;
-    private final PlaceImportService placeImportService;
+
     private final ShopService shopService;
     private final PaymentSendService paymentSendService;
 
@@ -46,11 +45,11 @@ public class ShopPlaceController {
             @RequestParam double lat,
             @RequestParam double lng,
             @RequestParam(required = false, defaultValue = "5") int limit,
-            @RequestParam(required = false) Integer radius,       // meters
+            @RequestParam(required = false) Integer radius,
             @RequestParam(required = false) String category
     ) {
         if (limit <= 0 || limit > 50) limit = 5;
-        return placeQueryService.getNearbyPlaces(lat, lng, limit, radius, category);
+        return placeQueryService.getNearby(lat, lng, category, radius, limit);
     }
 
     @GetMapping("/{shopInfoId}")
