@@ -9,15 +9,16 @@ import java.util.List;
 @Data @NoArgsConstructor @AllArgsConstructor
 public class UpdateShopInfoResponse {
 
-    private List<BusinessHoursDto> business_hours;
-    private String explanation;
-    private List<ImageDto> images;
-    private boolean seedCondition;
-    private String seedDetail;    // null 가능
-    private boolean couponCondition;
-    private Integer visitCount;   // null 가능
-    private String  couponType;   // null 가능
-    private String  couponImage;  // null 가능
+    private List<BusinessHoursDto> businessHours; // 기존
+    private String explanationTitle;              // ⬅️ 추가
+    private String explanationContent;            // ⬅️ 추가
+    private List<ImageDto> images;                // 기존
+    private boolean seedCondition;                // 기존
+    private String seedDetail;                    // 기존
+    private boolean couponCondition;              // 기존
+    private Integer visitCount;                   // 기존
+    private String couponType;                    // 기존
+    private String couponImage;   // null 가능
 
     @Data @NoArgsConstructor @AllArgsConstructor
     public static class BusinessHoursDto {

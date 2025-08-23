@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface ShopImageRepository extends JpaRepository<ShopImage, Long> {
     List<ShopImage> findByShopInfo(ShopInfo shopInfo);
+    List<ShopImage> findByShopInfo_ShopInfoId(Long shopInfoId);
     void deleteByShopInfo(ShopInfo shopInfo);
 }

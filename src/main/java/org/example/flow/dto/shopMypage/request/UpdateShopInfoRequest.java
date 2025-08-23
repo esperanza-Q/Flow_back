@@ -12,7 +12,8 @@ import java.util.List;
 public class UpdateShopInfoRequest {
 
     private List<BusinessHoursDto> business_hours;
-    private String explanation;
+    private String explanationTitle;   // 매장 타이틀
+    private String explanationContent; // 매장 설명 본문
     private List<ImageDto> images;
 
     private Boolean seedCondition;
