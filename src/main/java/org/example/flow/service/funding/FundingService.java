@@ -3,11 +3,14 @@ package org.example.flow.service.funding;
 import lombok.RequiredArgsConstructor;
 import org.example.flow.dto.funding.response.FundingDetailResponseDTO;
 import org.example.flow.dto.funding.response.FundingResponseDTO;
+import org.example.flow.dto.funding.response.SeedPopupResponseDTO;
 import org.example.flow.entity.Funded;
 import org.example.flow.entity.Funding;
+import org.example.flow.entity.Profile;
 import org.example.flow.entity.User;
 import org.example.flow.repository.FundedRepository;
 import org.example.flow.repository.FundingRepository;
+import org.example.flow.repository.ProfileRepository;
 import org.example.flow.repository.UserRepository;
 import org.example.flow.security.SecurityUtil;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ public class FundingService {
     private final UserRepository userRepository;
     private final FundingRepository fundingRepository;
     private final FundedRepository fundedRepository;
+    private final ProfileRepository profileRepository;
 
     public FundingResponseDTO getFunding() {
         User user = SecurityUtil.getCurrentUser(); // 현재 로그인 유저
@@ -67,6 +71,18 @@ public class FundingService {
                 .build();
 
         return fundingDetailResponseDTO;
+    }
+
+    public SeedPopupResponseDTO getSeedPopup(Long fundingId){
+        User user = SecurityUtil.getCurrentUser();
+        Profile profile = profileRepository.findByUser(user);
+        Funding funding = fundingRepository.findByFundingId(fundingId);
+        SeedPopupResponseDTO seedPopupResponseDTO = SeedPopupResponseDTO.builder()
+                .fundingId(fundingId)
+                .nickname(user.getNickname())
+                .seeds(profile.getSeeds())
+                .build();
+        return seedPopupResponseDTO;
     }
 
 }
