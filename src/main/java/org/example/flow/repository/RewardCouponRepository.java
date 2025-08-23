@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface RewardCouponRepository extends JpaRepository<RewardCoupon, Long> {
     List<RewardCoupon> findByShopInfo_ShopInfoId(Long shopInfoId);
+    RewardCoupon findByRewardCouponId(Long rewardCouponId);
 }
