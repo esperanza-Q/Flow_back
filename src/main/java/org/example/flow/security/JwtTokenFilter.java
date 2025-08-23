@@ -32,6 +32,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         //인증이 필요 없는 경로는 필터 건너뛰기
         if (httpRequest.getServletPath().startsWith("/api/auth/") ||
+                httpRequest.getServletPath().startsWith("/api/health") ||
+                httpRequest.getServletPath().startsWith("/actuator/") ||
                 httpRequest.getServletPath().startsWith("/api/users/")) {
             filterChain.doFilter(httpRequest, httpResponse);
             return; // 여기서 필터 종료
