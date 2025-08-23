@@ -23,19 +23,21 @@ public class UserMypageController {
         return userMypageService.getUserMypage(userId);
     }
 
+    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
     // GET /api/user/{user_id}/userMypage/coupon
-    @GetMapping("/user/{user_id}/userMypage/coupon")
-    public CouponResponse getUserCoupons(@PathVariable("user_id") Long userId) {
-        return couponService.getCoupons(userId);
-    }
+//    @GetMapping("/user/{user_id}/userMypage/coupon")
+//    public CouponResponse getUserCoupons(@PathVariable("user_id") Long userId) {
+//        return couponService.getCoupons(userId);
+//    }
 
-    // ✅  쿠폰 사용
-    @PatchMapping("/user/{user_id}/mypage/coupons/{receiveCouponId}/use")
-    public CouponUseResponse useCoupon(
-            @PathVariable("user_id") Long userId,
-            @PathVariable Long receiveCouponId,
-            @RequestBody UseCouponRequest request
-    ) {
-        return couponService.useCoupon(userId, receiveCouponId, request.getShopInfoId());
-    }
+    // ✅  쿠폰 사용   ‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+//    @PatchMapping("/user/{user_id}/mypage/coupons/{receiveCouponId}/use")
+//    public CouponUseResponse useCoupon(
+//            @PathVariable("user_id") Long userId,
+//            @PathVariable Long receiveCouponId,
+//            @RequestBody UseCouponRequest request
+//    ) {
+//        //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+//        return couponService.useCoupon(userId, receiveCouponId, request.getShopInfoId());
+//    }
 }

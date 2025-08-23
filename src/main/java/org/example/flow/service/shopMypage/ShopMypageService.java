@@ -12,11 +12,12 @@ import org.example.flow.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,7 +102,8 @@ public class ShopMypageService {
 
         return new UpdateShopInfoResponse(
                 businessHoursDtos,
-                shopInfo.getExplanation(),
+                //타이틀 + 컨텐츠도 추가해야 함.‼️‼️‼️‼️‼️
+                shopInfo.getExplanationTitle(),
                 imageDtos,
                 seedCondition,
                 seedDetail,
@@ -175,9 +177,9 @@ public class ShopMypageService {
         ShopInfo shopInfo = shopInfoRepository.findById(shopInfoId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "ShopInfo not found"));
 
-        // 1) 설명 수정
+        // 1) 설명 수정 ‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
         if (req.getExplanation() != null) {
-            shopInfo.setExplanation(req.getExplanation());
+            shopInfo.setExplanationTitle(req.getExplanation());
             shopInfoRepository.save(shopInfo);
         }
 
@@ -189,8 +191,9 @@ public class ShopMypageService {
                 BusinessHours h = new BusinessHours();
                 h.setShopInfo(shopInfo);
                 h.setWeek(toWeekEnum(dto.getWeek()));
-                h.setOpenTime(parseTime(dto.getOpenTime()));
-                h.setCloseTime(parseTime(dto.getCloseTime()));
+                //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+                h.setOpenTime(dto.getOpenTime());
+                h.setCloseTime(dto.getCloseTime());
                 businessHoursRepository.save(h);
             }
         }
@@ -254,14 +257,15 @@ public class ShopMypageService {
         };
     }
 
+    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
     // "09:00" -> Date 변환
-    private Date parseTime(String hhmm) {
-        try {
-            return new SimpleDateFormat("HH:mm").parse(hhmm);
-        } catch (Exception e) {
-            throw new ResponseStatusException(BAD_REQUEST, "Invalid time format: " + hhmm);
-        }
-    }
+//    private LocalTime parseTime(String hhmm) {
+//        try {
+//            return new SimpleDateFormat("HH:mm").parse(hhmm);
+//        } catch (Exception e) {
+//            throw new ResponseStatusException(BAD_REQUEST, "Invalid time format: " + hhmm);
+//        }
+//    }
 
     //결제 요청 리스트 조회
     public PaymentCheckListResponse getPaymentChecks(Long shopInfoId, String status, String sortParam) {

@@ -1,15 +1,20 @@
 package org.example.flow.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "shop_info")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 
 public class ShopInfo {
     @Id
@@ -22,8 +27,10 @@ public class ShopInfo {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, unique = true)
     private User user;
 
+    private String explanationTitle;
+
     @Column(columnDefinition = "TEXT")
-    private String explanation;   // 매장 설명
+    private String explanationContent;   // 매장 설명
 
     @Column(name = "now_month", nullable = false)
     private Integer nowMonth;   // 현재 월 (예: 202508)
@@ -33,5 +40,9 @@ public class ShopInfo {
 
     @Column(name = "partnership_cost", nullable = false)
     private Integer partnershipCost;   // 파트너쉽 비용
+
+//    @ElementCollection
+//    @Builder.Default
+//    private List<String> imageUrls = new ArrayList<>();
 
 }
