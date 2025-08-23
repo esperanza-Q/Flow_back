@@ -23,5 +23,5 @@ public class ShopImage {
 
     // 이미지 경로
     @Column(nullable = false, length = 1000)
-    private Long image;
+    private String image;
 }
