@@ -7,9 +7,11 @@ import org.example.flow.dto.user.request.SignupRequestDTO;
 import org.example.flow.dto.user.response.LoginResponseDTO;
 import org.example.flow.dto.user.response.SignupResponseDTO;
 import org.example.flow.entity.Place;
+import org.example.flow.entity.Profile;
 import org.example.flow.entity.ShopInfo;
 import org.example.flow.entity.User;
 import org.example.flow.repository.PlaceRepository;
+import org.example.flow.repository.ProfileRepository;
 import org.example.flow.repository.ShopInfoRepository;
 import org.example.flow.repository.UserRepository;
 import org.example.flow.security.CustomUserDetails;
@@ -31,13 +33,15 @@ public class UserService implements UserDetailsService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ShopInfoRepository shopInfoRepository;
     private final PlaceRepository placeRepository;
+    private final ProfileRepository profileRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository, PlaceRepository placeRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository, PlaceRepository placeRepository, ProfileRepository profileRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.shopInfoRepository = shopInfoRepository;
         this.placeRepository = placeRepository;
+        this.profileRepository = profileRepository;
     }
 
     // 🔑 회원가입 (비밀번호 암호화 후 저장)
@@ -83,7 +87,11 @@ public class UserService implements UserDetailsService {
         }
 
         //GENERAL
-//        if (user.getRole() == User.Role.SHOP)
+        if (user.getRole() == User.Role.GENERAL){
+            Profile profile = new Profile();
+            profile.setUser(user);
+            profileRepository.save(profile);
+        }
 
             return new SignupResponseDTO(user.getUserId(), shopInfoId);
     }
