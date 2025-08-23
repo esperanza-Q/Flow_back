@@ -1,8 +1,11 @@
 package org.example.flow.service.funding;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.flow.dto.funding.request.SeedGiveRequestDTO;
 import org.example.flow.dto.funding.response.FundingDetailResponseDTO;
 import org.example.flow.dto.funding.response.FundingResponseDTO;
+import org.example.flow.dto.funding.response.SeedGiveResponseDTO;
 import org.example.flow.dto.funding.response.SeedPopupResponseDTO;
 import org.example.flow.entity.Funded;
 import org.example.flow.entity.Funding;
@@ -14,10 +17,13 @@ import org.example.flow.repository.ProfileRepository;
 import org.example.flow.repository.UserRepository;
 import org.example.flow.security.SecurityUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FundingService {
@@ -83,6 +89,36 @@ public class FundingService {
                 .seeds(profile.getSeeds())
                 .build();
         return seedPopupResponseDTO;
+    }
+
+    @Transactional
+    public SeedGiveResponseDTO giveSeed(SeedGiveRequestDTO dto){
+        Funding funding = fundingRepository.findByFundingId(dto.getFundingId());
+        funding.setNowSeed(funding.getNowSeed()+dto.getFundedSeeds());
+        User user = SecurityUtil.getCurrentUser();
+        Profile profile = profileRepository.findByUser(user);
+        profile.setSeeds(profile.getSeeds()-dto.getFundedSeeds());
+
+        Boolean first = !(fundedRepository.existsFundedByUser(user));
+
+        Funded funded = Funded.builder()
+                .user(user)
+                .funding(funding)
+                .seeds(dto.getFundedSeeds())
+                .build();
+
+        fundedRepository.save(funded);
+
+        if(funding.getNowSeed()>=funding.getGoalSeed()){
+            funding.setStatus(Funding.STATUS.FINISHED);
+        }
+
+        SeedGiveResponseDTO responseDTO = SeedGiveResponseDTO.builder()
+                .message("성공적으로 펀딩을 완료했습니다")
+                .first(first)
+                .build();
+
+        return responseDTO;
     }
 
 }
