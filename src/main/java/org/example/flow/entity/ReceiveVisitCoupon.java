@@ -18,8 +18,8 @@ import lombok.experimental.SuperBuilder;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorValue("VISIT")
 public class ReceiveVisitCoupon extends ReceiveCoupon {
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "shop_info_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "benefitReq_id")
     @JsonBackReference
-    private ShopInfo shopInfo;
+    private BenefitReq benefitReq;
 }

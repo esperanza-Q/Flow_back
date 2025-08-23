@@ -6,14 +6,18 @@ import org.example.flow.entity.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
 public class CouponResponse {
     private List<CouponDto> content;
 
+    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
     public static CouponResponse from(List<ReceiveCoupon> coupons) {
-        return new CouponResponse(coupons.stream().map(CouponDto::from).toList());
+        return new CouponResponse(
+                coupons.stream().map(CouponDto::from).collect(Collectors.toList())
+        );
     }
 
     @Getter
@@ -28,25 +32,38 @@ public class CouponResponse {
         private Reward reward; // REWARD일 때만 값
         private Visit visit;   // VISIT일 때만 값
 
+
+        //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
         public static CouponDto from(ReceiveCoupon c) {
             String type;
             Reward reward = null;
             Visit visit = null;
 
-            if (c instanceof ReceiveRewardCoupon rc) {
+            if (c instanceof ReceiveRewardCoupon) {
+                ReceiveRewardCoupon rc = (ReceiveRewardCoupon) c;
                 type = "REWARD";
-                reward = new Reward(rc.getRewardCoupon().getRewardCouponId());
-            } else if (c instanceof ReceiveVisitCoupon vc) {
+                if (rc.getRewardCoupon() != null) {
+                    reward = new Reward(rc.getRewardCoupon().getRewardCouponId());
+                }
+            } else if (c instanceof ReceiveVisitCoupon) {
+                ReceiveVisitCoupon vc = (ReceiveVisitCoupon) c;
+                Long shopInfoId = null;
+                if (vc.getBenefitReq() != null && vc.getBenefitReq().getShopInfo() != null) {
+                    shopInfoId = vc.getBenefitReq().getShopInfo().getShopInfoId();
+                }
                 type = "VISIT";
-                visit = new Visit(vc.getShopInfo().getShopInfoId());
+                if (shopInfoId != null) visit = new Visit(shopInfoId);
+
             } else {
-                // 자식 타입이 아니면 추천 쿠폰(부가정보 없음)
+                // 다른(추천) 타입
                 type = "RECOMMEND";
             }
 
+            Long userId = (c.getUser() != null) ? c.getUser().getUserId() : null;
+
             return new CouponDto(
                     c.getReceiveCouponId(),
-                    c.getUser().getUserId(),
+                    userId,
                     type,
                     c.getReceiveAt(),
                     c.getUsed(),
@@ -56,6 +73,7 @@ public class CouponResponse {
         }
 
 
+
         @Getter @AllArgsConstructor
         public static class Reward {
             @JsonProperty("rewardCoupon_id")
@@ -63,7 +81,7 @@ public class CouponResponse {
         }
         @Getter @AllArgsConstructor
         public static class Visit {
-            @JsonProperty("shopInfo_id")
+            @JsonProperty("shop_info_id")
             private Long shopInfoId;
         }
     }

@@ -3,6 +3,7 @@ package org.example.flow.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.flow.repository.UserRepository;
 import org.example.flow.security.JwtTokenFilter;
 import org.example.flow.security.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +42,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(Customizer.withDefaults())
+                .cors(cors -> {}) // CORS는 아래 WebMvcConfigurer에서 처리
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
@@ -51,6 +52,9 @@ public class SecurityConfig {
                                 "/actuator/health",
                                 "/actuator/info",
                                 "/api/user/**",
+                                "/api/shopMypage/**",
+                                "/api/shop/**",
+                                "/api/**",
                                 "/api/shopMypage/**",
                                 "/api/health"
                         ).permitAll()
@@ -74,7 +78,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -84,9 +88,8 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-//                        .allowedOrigins("http://localhost:3000", "myapp://")
-                        .allowedOriginPatterns("*")
-//                        .allowCredentials(true)
+                        // Vercel 배포 URL + 로컬 개발 환경 추가
+                        .allowedOrigins("http://localhost:3000", "https://myapp.vercel.app", "myapp://")
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
