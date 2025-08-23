@@ -12,9 +12,10 @@ import java.util.List;
 public class CouponResponse {
     private List<CouponDto> content;
 
-    public static CouponResponse from(List<ReceiveCoupon> coupons) {
-        return new CouponResponse(coupons.stream().map(CouponDto::from).toList());
-    }
+    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+//    public static CouponResponse from(List<ReceiveCoupon> coupons) {
+//        return new CouponResponse(coupons.stream().map(CouponDto::from).toList());
+//    }
 
     @Getter
     @AllArgsConstructor
@@ -28,32 +29,35 @@ public class CouponResponse {
         private Reward reward; // REWARD일 때만 값
         private Visit visit;   // VISIT일 때만 값
 
-        public static CouponDto from(ReceiveCoupon c) {
-            String type;
-            Reward reward = null;
-            Visit visit = null;
 
-            if (c instanceof ReceiveRewardCoupon rc) {
-                type = "REWARD";
-                reward = new Reward(rc.getRewardCoupon().getRewardCouponId());
-            } else if (c instanceof ReceiveVisitCoupon vc) {
-                type = "VISIT";
-                visit = new Visit(vc.getShopInfo().getShopInfoId());
-            } else {
-                // 자식 타입이 아니면 추천 쿠폰(부가정보 없음)
-                type = "RECOMMEND";
-            }
-
-            return new CouponDto(
-                    c.getReceiveCouponId(),
-                    c.getUser().getUserId(),
-                    type,
-                    c.getReceiveAt(),
-                    c.getUsed(),
-                    reward,
-                    visit
-            );
-        }
+        //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+//        public static CouponDto from(ReceiveCoupon c) {
+//            String type;
+//            Reward reward = null;
+//            Visit visit = null;
+//
+//            if (c instanceof ReceiveRewardCoupon rc) {
+//                type = "REWARD";
+//                reward = new Reward(rc.getRewardCoupon().getRewardCouponId());
+//            } else if (c instanceof ReceiveVisitCoupon vc) {
+//                type = "VISIT";
+//                //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+//                visit = new Visit(vc.getShopInfo().getShopInfoId());
+//            } else {
+//                // 자식 타입이 아니면 추천 쿠폰(부가정보 없음)
+//                type = "RECOMMEND";
+//            }
+//
+//            return new CouponDto(
+//                    c.getReceiveCouponId(),
+//                    c.getUser().getUserId(),
+//                    type,
+//                    c.getReceiveAt(),
+//                    c.getUsed(),
+//                    reward,
+//                    visit
+//            );
+//        }
 
 
         @Getter @AllArgsConstructor

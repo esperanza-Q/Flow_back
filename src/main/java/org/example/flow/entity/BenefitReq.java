@@ -1,7 +1,10 @@
 package org.example.flow.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "benefit_req")
@@ -9,6 +12,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class BenefitReq {
 
     @Id
@@ -46,4 +50,8 @@ public class BenefitReq {
     public enum ReqName {
         SEED, COUPON
     }
+
+    @OneToMany(mappedBy = "benefitReq", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<ReceiveVisitCoupon> receiveVisitCoupons;
 }

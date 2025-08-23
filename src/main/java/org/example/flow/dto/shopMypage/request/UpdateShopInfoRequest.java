@@ -2,6 +2,7 @@ package org.example.flow.dto.shopMypage.request;
 
 import lombok.*;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -28,8 +29,8 @@ public class UpdateShopInfoRequest {
     @AllArgsConstructor
     public static class BusinessHoursDto {
         private String week;      // "MON", "TUE"...
-        private String openTime;  // "09:00"
-        private String closeTime; // "21:00"
+        private LocalTime openTime;  // "09:00"
+        private LocalTime closeTime; // "21:00"
     }
 
     @Getter
