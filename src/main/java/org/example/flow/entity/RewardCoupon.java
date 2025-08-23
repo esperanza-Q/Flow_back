@@ -1,7 +1,10 @@
 package org.example.flow.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "rewardCoupon")
@@ -33,4 +36,8 @@ public class RewardCoupon {
     // 쿠폰 이미지
     @Column(nullable = false, length = 1000)
     private String image;
+
+    @OneToMany(mappedBy = "rewardCoupon", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<ReceiveRewardCoupon> receiveRewardCoupons;
 }

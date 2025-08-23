@@ -2,10 +2,7 @@ package org.example.flow.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 
@@ -19,9 +16,13 @@ import lombok.experimental.SuperBuilder;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorValue("REWARD")
 public class ReceiveRewardCoupon extends ReceiveCoupon {
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "receiveCoupon_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "receiveRewardCoupon_id")
     @JsonBackReference
     private RewardCoupon rewardCoupon;
 
+//    @ManyToOne
+//    @JoinColumn(name = "receiveCoupon_id")
+//    @JsonBackReference
+//    private RewardCoupon rewardCoupon;
 }
