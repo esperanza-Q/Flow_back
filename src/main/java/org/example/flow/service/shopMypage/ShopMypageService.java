@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,6 +38,9 @@ public class ShopMypageService {
     private final BenefitReqRepository benefitReqRepository;
     private final PaymentCheckRepository paymentCheckRepository;
     private final RewardCouponRepository rewardCouponRepository;
+
+    private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final DateTimeFormatter TF_SHORT = DateTimeFormatter.ofPattern("HH:mm");
 
     private static final Path UPLOAD_DIR = Path.of("uploads", "reward-coupon"); // 경로 변경
 
@@ -71,21 +73,17 @@ public class ShopMypageService {
         ShopInfo shopInfo = shopInfoRepository.findById(shopInfoId)
                 .orElseThrow(() -> new RuntimeException("ShopInfo not found"));
 
-        // 1) 영업시간: 동일한 (open, close) 묶음으로 요일 병합
+        // 1) 영업시간 병합
         List<BusinessHours> hours = businessHoursRepository.findByShopInfo(shopInfo);
         List<UpdateShopInfoResponse.BusinessHoursDto> businessHoursDtos = toBusinessHoursDtos(hours);
 
         // 2) 이미지
         List<ShopImage> images = shopImageRepository.findByShopInfo(shopInfo);
         List<UpdateShopInfoResponse.ImageDto> imageDtos = images.stream()
-                .map(i -> new UpdateShopInfoResponse.ImageDto(
-                        // ShopImage.image 타입이 Long이면 URL이 아닌 식별자일 수 있음.
-                        // URL을 DB에 저장하려면 컬럼 타입을 String으로 바꾸는 걸 권장.
-                        String.valueOf(i.getImage())
-                ))
+                .map(i -> new UpdateShopInfoResponse.ImageDto(String.valueOf(i.getImage())))
                 .collect(Collectors.toList());
 
-        // 3) BenefitReq: 씨앗/쿠폰 조건
+        // 3) BenefitReq
         Optional<BenefitReq> seedOpt = benefitReqRepository
                 .findFirstByShopInfoAndReqNameOrderByBenefitReqIdDesc(shopInfo, BenefitReq.ReqName.SEED);
 
@@ -102,8 +100,8 @@ public class ShopMypageService {
 
         return new UpdateShopInfoResponse(
                 businessHoursDtos,
-                //타이틀 + 컨텐츠도 추가해야 함.‼️‼️‼️‼️‼️
-                shopInfo.getExplanationTitle(),
+                shopInfo.getExplanationTitle(),      // ⬅️ 제목
+                shopInfo.getExplanationContent(),    // ⬅️ 본문
                 imageDtos,
                 seedCondition,
                 seedDetail,
@@ -114,6 +112,7 @@ public class ShopMypageService {
         );
     }
 
+
     /**
      * 동일한 (open, close) 시간대 그룹으로 요일을 병합해서
      * "MON/TUE/WED/..." 문자열을 구성한다.
@@ -121,18 +120,19 @@ public class ShopMypageService {
     private List<UpdateShopInfoResponse.BusinessHoursDto> toBusinessHoursDtos(List<BusinessHours> hours) {
         if (hours == null || hours.isEmpty()) return Collections.emptyList();
 
-        // 시간 포맷터 (BusinessHours에 Date 사용 중)
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-
-        // key: "HH:mm|HH:mm", value: 요일 목록
-        Map<String, List<BusinessHours.Week>> grouped = new HashMap<>();
+        // key: "HH:mm|HH:mm"  (예: "09:00|21:00")
+        Map<String, List<BusinessHours.Week>> grouped = new LinkedHashMap<>();
 
         for (BusinessHours h : hours) {
-            String key = sdf.format(h.getOpenTime()) + "|" + sdf.format(h.getCloseTime());
+            // ✅ LocalTime 안전 포맷
+            String open  = h.getOpenTime()  != null ? h.getOpenTime().format(TF_SHORT)  : null;
+            String close = h.getCloseTime() != null ? h.getCloseTime().format(TF_SHORT) : null;
+
+            String key = open + "|" + close;
             grouped.computeIfAbsent(key, k -> new ArrayList<>()).add(h.getWeek());
         }
 
-        // 요일 정렬 순서 지정
+        // 요일 정렬 순서
         List<BusinessHours.Week> order = Arrays.asList(
                 BusinessHours.Week.MONDAY,
                 BusinessHours.Week.TUESDAY,
@@ -143,33 +143,36 @@ public class ShopMypageService {
                 BusinessHours.Week.SUNDAY
         );
 
-        // 요일 축약표기
-        Map<BusinessHours.Week, String> abbrev = Map.of(
-                BusinessHours.Week.MONDAY,    "MON",
-                BusinessHours.Week.TUESDAY,   "TUE",
-                BusinessHours.Week.WEDNESDAY, "WED",
-                BusinessHours.Week.THURSDAY,  "THU",
-                BusinessHours.Week.FRIDAY,    "FRI",
-                BusinessHours.Week.SATURDAY,  "SAT",
-                BusinessHours.Week.SUNDAY,    "SUN"
-        );
-
-        // 그룹을 DTO로 변환
-        return grouped.entrySet().stream().map(e -> {
+        // 그룹 → DTO
+        return grouped.entrySet().stream()
+                .map(e -> {
                     String[] times = e.getKey().split("\\|", 2);
-                    String open = times[0];
+                    String open  = times[0];
                     String close = times[1];
 
-                    // 지정한 요일 순서대로 정렬 후 "MON/TUE/..." join
                     String weekJoined = e.getValue().stream()
                             .sorted(Comparator.comparingInt(order::indexOf))
-                            .map(abbrev::get)
+                            .map(this::weekToAbbrev)                 // ✅ MON/TUE/...로 변환
                             .collect(Collectors.joining("/"));
 
                     return new UpdateShopInfoResponse.BusinessHoursDto(weekJoined, open, close);
-                }).sorted(Comparator.comparing(UpdateShopInfoResponse.BusinessHoursDto::getOpenTime)
+                })
+                // "09:00" 같은 0패딩이므로 문자열 정렬로도 안전
+                .sorted(Comparator.comparing(UpdateShopInfoResponse.BusinessHoursDto::getOpenTime)
                         .thenComparing(UpdateShopInfoResponse.BusinessHoursDto::getCloseTime))
                 .collect(Collectors.toList());
+    }
+
+    private String weekToAbbrev(BusinessHours.Week w) {
+        return switch (w) {
+            case MONDAY    -> "MON";
+            case TUESDAY   -> "TUE";
+            case WEDNESDAY -> "WED";
+            case THURSDAY  -> "THU";
+            case FRIDAY    -> "FRI";
+            case SATURDAY  -> "SAT";
+            case SUNDAY    -> "SUN";
+        };
     }
 
     @Transactional
@@ -177,11 +180,14 @@ public class ShopMypageService {
         ShopInfo shopInfo = shopInfoRepository.findById(shopInfoId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "ShopInfo not found"));
 
-        // 1) 설명 수정 ‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
-        if (req.getExplanation() != null) {
-            shopInfo.setExplanationTitle(req.getExplanation());
-            shopInfoRepository.save(shopInfo);
+        // 1) 설명 수정 (제목/본문 분리 반영)
+        if (req.getExplanationTitle() != null) {
+            shopInfo.setExplanationTitle(req.getExplanationTitle());
         }
+        if (req.getExplanationContent() != null) {
+            shopInfo.setExplanationContent(req.getExplanationContent());
+        }
+        shopInfoRepository.save(shopInfo);
 
         // 2) 영업시간 전체 교체
         if (req.getBusiness_hours() != null) {
@@ -191,7 +197,7 @@ public class ShopMypageService {
                 BusinessHours h = new BusinessHours();
                 h.setShopInfo(shopInfo);
                 h.setWeek(toWeekEnum(dto.getWeek()));
-                //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
+                // "HH:mm" → LocalTime 파싱 (엔티티가 LocalTime 사용한다고 가정)
                 h.setOpenTime(dto.getOpenTime());
                 h.setCloseTime(dto.getCloseTime());
                 businessHoursRepository.save(h);
@@ -239,7 +245,7 @@ public class ShopMypageService {
             }
         }
 
-        // 최종 응답 재활용
+        // 최종 응답
         return getUpdateShopInfo(shopInfoId);
     }
 

@@ -25,6 +25,7 @@ public class BenefitReq {
     @JoinColumn(name = "shop_info_id", nullable = false)
     private ShopInfo shopInfo;
 
+
     // ENUM: SEED / COUPON
     @Enumerated(EnumType.STRING)
     @Column(name = "req_name", nullable = false, length = 20)

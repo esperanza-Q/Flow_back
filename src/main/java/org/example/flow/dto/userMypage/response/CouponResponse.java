@@ -6,6 +6,7 @@ import org.example.flow.entity.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -13,9 +14,11 @@ public class CouponResponse {
     private List<CouponDto> content;
 
     //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
-//    public static CouponResponse from(List<ReceiveCoupon> coupons) {
-//        return new CouponResponse(coupons.stream().map(CouponDto::from).toList());
-//    }
+    public static CouponResponse from(List<ReceiveCoupon> coupons) {
+        return new CouponResponse(
+                coupons.stream().map(CouponDto::from).collect(Collectors.toList())
+        );
+    }
 
     @Getter
     @AllArgsConstructor
@@ -31,33 +34,44 @@ public class CouponResponse {
 
 
         //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
-//        public static CouponDto from(ReceiveCoupon c) {
-//            String type;
-//            Reward reward = null;
-//            Visit visit = null;
-//
-//            if (c instanceof ReceiveRewardCoupon rc) {
-//                type = "REWARD";
-//                reward = new Reward(rc.getRewardCoupon().getRewardCouponId());
-//            } else if (c instanceof ReceiveVisitCoupon vc) {
-//                type = "VISIT";
-//                //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
-//                visit = new Visit(vc.getShopInfo().getShopInfoId());
-//            } else {
-//                // 자식 타입이 아니면 추천 쿠폰(부가정보 없음)
-//                type = "RECOMMEND";
-//            }
-//
-//            return new CouponDto(
-//                    c.getReceiveCouponId(),
-//                    c.getUser().getUserId(),
-//                    type,
-//                    c.getReceiveAt(),
-//                    c.getUsed(),
-//                    reward,
-//                    visit
-//            );
-//        }
+        public static CouponDto from(ReceiveCoupon c) {
+            String type;
+            Reward reward = null;
+            Visit visit = null;
+
+            if (c instanceof ReceiveRewardCoupon) {
+                ReceiveRewardCoupon rc = (ReceiveRewardCoupon) c;
+                type = "REWARD";
+                if (rc.getRewardCoupon() != null) {
+                    reward = new Reward(rc.getRewardCoupon().getRewardCouponId());
+                }
+            } else if (c instanceof ReceiveVisitCoupon) {
+                ReceiveVisitCoupon vc = (ReceiveVisitCoupon) c;
+                Long shopInfoId = null;
+                if (vc.getBenefitReq() != null && vc.getBenefitReq().getShopInfo() != null) {
+                    shopInfoId = vc.getBenefitReq().getShopInfo().getShopInfoId();
+                }
+                type = "VISIT";
+                if (shopInfoId != null) visit = new Visit(shopInfoId);
+
+            } else {
+                // 다른(추천) 타입
+                type = "RECOMMEND";
+            }
+
+            Long userId = (c.getUser() != null) ? c.getUser().getUserId() : null;
+
+            return new CouponDto(
+                    c.getReceiveCouponId(),
+                    userId,
+                    type,
+                    c.getReceiveAt(),
+                    c.getUsed(),
+                    reward,
+                    visit
+            );
+        }
+
 
 
         @Getter @AllArgsConstructor
@@ -67,7 +81,7 @@ public class CouponResponse {
         }
         @Getter @AllArgsConstructor
         public static class Visit {
-            @JsonProperty("shopInfo_id")
+            @JsonProperty("shop_info_id")
             private Long shopInfoId;
         }
     }

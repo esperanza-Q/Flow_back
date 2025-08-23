@@ -27,7 +27,7 @@ public class ShopInfo {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false, unique = true)
     private User user;
 
-    private String explanationTitle;
+    private String explanationTitle; //매장 타이틀
 
     @Column(columnDefinition = "TEXT")
     private String explanationContent;   // 매장 설명

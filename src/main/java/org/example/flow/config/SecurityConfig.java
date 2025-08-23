@@ -48,12 +48,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/users/signup",
-                                "/api/users/login",
+                                "/api/users/**",
                                 "/test/**",
                                 "/actuator/health",
                                 "/actuator/info",
                                 "/api/user/**",
+                                "/api/shopMypage/**",
+                                "/api/shop/**",
+                                "/api/**",
                                 "/api/shopMypage/**",
                                 "/api/health"
                         ).permitAll()
@@ -87,9 +89,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-//                        .allowedOrigins("http://localhost:3000", "myapp://")
-                        .allowedOriginPatterns("*")
-//                        .allowCredentials(true)
+                        .allowedOrigins("http://localhost:3000", "myapp://")
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
