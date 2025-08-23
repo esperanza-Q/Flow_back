@@ -23,7 +23,7 @@ public class Funding {
     @Column(name="funding_id", nullable = false)
     private Long fundingId;
 
-    private String name;
+    private String title;
 
     private String organizer;
 
