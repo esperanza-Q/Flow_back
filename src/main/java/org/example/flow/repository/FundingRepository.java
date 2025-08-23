@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface FundingRepository extends JpaRepository<Funding, Integer> {
     List<Funding> findByStatus(Funding.STATUS status);
+
+    Funding findByFundingId(Long fundingId);
 }
