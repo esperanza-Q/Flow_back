@@ -82,7 +82,10 @@ public class UserService implements UserDetailsService {
             shopInfoId = savedShopInfo.getShopInfoId();
         }
 
-        return new SignupResponseDTO(user.getUserId(), shopInfoId);
+        //GENERAL
+//        if (user.getRole() == User.Role.SHOP)
+
+            return new SignupResponseDTO(user.getUserId(), shopInfoId);
     }
 
     // 🔐 로그인 (ID/PW 검증 후 JWT 발급)

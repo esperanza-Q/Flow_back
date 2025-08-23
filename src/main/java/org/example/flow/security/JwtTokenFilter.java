@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.example.flow.entity.User;
 import org.example.flow.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,56 +18,48 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
+
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
-    private final UserRepository userRepository;
 
-    public JwtTokenFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService, UserRepository userRepository) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userDetailsService = userDetailsService;
-        this.userRepository = userRepository;
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        // 인증이 필요 없는 경로
+        String path = request.getServletPath();
+        if (path.startsWith("/api/auth/") ||
+                path.startsWith("/api/users/signup") ||
+                path.startsWith("/api/users/login") ||
+                path.startsWith("/api/health") ||
+                path.startsWith("/actuator/") ||
+                path.equals("/favicon.ico") ||
+                path.startsWith("/static/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // JWT 토큰 가져오기
+        String token = jwtTokenProvider.resolveToken(request);
+
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            String email = jwtTokenProvider.getEmail(token);
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
+        filterChain.doFilter(request, response);
     }
-
-//     JWT 검증
-@Override
-protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-    HttpServletRequest httpRequest = (HttpServletRequest) request;
-    HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-    // 인증이 필요 없는 경로는 필터 건너뛰기
-    if (httpRequest.getServletPath().startsWith("/api/auth/") ||
-            httpRequest.getServletPath().startsWith("/api/health") ||
-            httpRequest.getServletPath().startsWith("/actuator/") ||
-            httpRequest.getServletPath().startsWith("/api/users/signup") ||
-            httpRequest.getServletPath().startsWith("/api/users/login")) {
-        filterChain.doFilter(httpRequest, httpResponse);
-        return;
-    }
-
-    // 🔹 여기서 JWT 토큰 가져오기
-    String token = jwtTokenProvider.resolveToken(httpRequest);
-    System.out.println("JWT token: " + token);  // 디버깅용
-
-    // 🔹 토큰이 유효하면 인증 처리
-    if (token != null && jwtTokenProvider.validateToken(token)) {
-        String email = jwtTokenProvider.getEmail(token);
-        System.out.println("JWT email: " + email);  // 디버깅용
-
-        // 🔹 UserDetails 가져오기
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
-
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
-
-        // 🔹 SecurityContext에 인증 객체 저장
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    // 다음 필터로 넘어가기
-    filterChain.doFilter(httpRequest, httpResponse);
 }
 //    @Override
 //    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -110,4 +103,3 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
 //            SecurityContextHolder.getContext().setAuthentication(authentication);
 //        }
 //    }
-}
