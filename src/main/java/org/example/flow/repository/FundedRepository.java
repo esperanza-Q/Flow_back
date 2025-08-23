@@ -10,4 +10,6 @@ import java.util.List;
 public interface FundedRepository extends JpaRepository<Funded, Integer> {
     List<Funded> findByFunding(Funding funding);
     Boolean existsFundedByUser(User user);
+
+    List<Funded> findByUser(User user);
 }

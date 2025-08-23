@@ -3,10 +3,7 @@ package org.example.flow.service.funding;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.flow.dto.funding.request.SeedGiveRequestDTO;
-import org.example.flow.dto.funding.response.FundingDetailResponseDTO;
-import org.example.flow.dto.funding.response.FundingResponseDTO;
-import org.example.flow.dto.funding.response.SeedGiveResponseDTO;
-import org.example.flow.dto.funding.response.SeedPopupResponseDTO;
+import org.example.flow.dto.funding.response.*;
 import org.example.flow.entity.Funded;
 import org.example.flow.entity.Funding;
 import org.example.flow.entity.Profile;
@@ -21,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -118,7 +117,46 @@ public class FundingService {
                 .first(first)
                 .build();
 
+//        if(first){
+//
+//        }
+
         return responseDTO;
     }
 
+    public List<MyFundingResponseDTO> getMyFunding(){
+        User user = SecurityUtil.getCurrentUser();
+
+        // 특정 유저가 참여한 Funded 리스트
+        List<Funded> fundeds = fundedRepository.findByUser(user);
+
+// 같은 funding 기준으로 묶고, seed 합계 구하기
+        Map<Funding, Integer> fundingSeedMap = fundeds.stream()
+                .collect(Collectors.groupingBy(
+                        Funded::getFunding,                           // key = funding
+                        Collectors.summingInt(Funded::getSeeds)        // value = seed 합계
+                ));
+
+// DTO 리스트 빌드
+        List<MyFundingResponseDTO> responses = fundingSeedMap.entrySet().stream()
+                .map(entry -> {
+                    Funding funding = entry.getKey();
+                    Integer mySeed = entry.getValue();
+
+                    return MyFundingResponseDTO.builder()
+                            .fundingId(funding.getFundingId())
+                            .title(funding.getTitle())
+                            .organizer(funding.getOrganizer())
+                            .goalSeed(funding.getGoalSeed())
+                            .nowSeed(funding.getNowSeed())
+                            .mySeed(mySeed)                         // ✅ 유저별 합계 seed
+                            .endDate(funding.getEndDate())
+                            .image(funding.getImage())
+                            .status(funding.getStatus())
+                            .build();
+                })
+                .toList();
+
+        return responses;
+    }
 }
