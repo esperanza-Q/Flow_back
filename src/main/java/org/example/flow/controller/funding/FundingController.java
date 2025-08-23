@@ -1,17 +1,16 @@
 package org.example.flow.controller.funding;
 
 import lombok.RequiredArgsConstructor;
+import org.example.flow.dto.funding.request.SeedGiveRequestDTO;
 import org.example.flow.dto.funding.response.FundingDetailResponseDTO;
 import org.example.flow.dto.funding.response.FundingResponseDTO;
+import org.example.flow.dto.funding.response.SeedGiveResponseDTO;
 import org.example.flow.dto.funding.response.SeedPopupResponseDTO;
 import org.example.flow.dto.user.response.UserResponseDTO;
 import org.example.flow.entity.User;
 import org.example.flow.service.funding.FundingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/funding")
@@ -36,6 +35,12 @@ public class FundingController {
     public ResponseEntity<?> getSeedPopup(@RequestParam Long fundingId) {
         SeedPopupResponseDTO response = fundingService.getSeedPopup(fundingId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/giveSeeds")
+    public ResponseEntity<?> giveSeed(@RequestBody SeedGiveRequestDTO seedGiveRequestDTO) {
+        SeedGiveResponseDTO responseDTO = fundingService.giveSeed(seedGiveRequestDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
 }
