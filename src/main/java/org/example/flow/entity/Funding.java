@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -31,6 +32,8 @@ public class Funding {
     private Integer nowSeed;
 
     private String image;
+
+    private LocalDate endDate;
 
     private String introduction;
 
