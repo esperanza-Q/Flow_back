@@ -27,7 +27,6 @@ public class CouponService {
     private final ReceiveCouponRepository receiveCouponRepository;
     private final UserRepository userRepository;
 
-    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
     // ✅ 쿠폰 목록
     public CouponResponse getCoupons(Long userId) {
         // Optional 로 널 안전성 확보 (findByUserId 시그니처에 맞춰 조정)
@@ -38,8 +37,7 @@ public class CouponService {
         return CouponResponse.from(coupons);
     }
 
-    // ✅ 쿠폰 사용   ‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
-
+    // ✅ 쿠폰 사용
     @Transactional
     public CouponUseResponse useCoupon(Long userId, Long receiveCouponId, Long shopInfoId) {
         ReceiveCoupon rc = receiveCouponRepository.findById(receiveCouponId)
@@ -64,7 +62,6 @@ public class CouponService {
                 throw new GeneralException(ErrorStatus.SHOP_ID_REQUIRED);
             }
 
-            // ⚠️ 엔티티 필드명에 맞춰 확인: getShopInfo() 가 일반적
             Long couponShopId = null;
             if (visit.getBenefitReq() != null && visit.getBenefitReq().getShopInfo() != null) {
                 couponShopId = visit.getBenefitReq().getShopInfo().getShopInfoId();
@@ -93,7 +90,6 @@ public class CouponService {
                 .build();
     }
 
-    // receiveAt이 OffsetDateTime이 아니면 프로젝트 상황에 맞춰 변환하세요.
     private String formatAsIso(Object ts) {
         if (ts == null) return null;
 
@@ -104,7 +100,7 @@ public class CouponService {
             // DB에 UTC로 저장했다고 가정하고 'Z' 부착
             return ldt.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         }
-        // 그 외 타입이면 toString으로 응급처치
+        // 그 외 타입이면 toString으로
         return ts.toString();
     }
 }
