@@ -22,8 +22,8 @@ public class Place {
     @JoinColumn(name = "shop_info_id", nullable = false, unique = true) // ← unique로 1:1 보장
     private ShopInfo shopInfo;
 
-    @Column(name = "explanation_title", nullable = false, length = 100)
-    private String explanationTitle;
+//    @Column(name = "explanation_title", nullable = false, length = 100)
+//    private String explanationTitle;
 
     @Column(nullable = false)
     private String location;

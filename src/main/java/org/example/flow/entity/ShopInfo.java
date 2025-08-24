@@ -41,6 +41,11 @@ public class ShopInfo {
     @Column(name = "partnership_cost", nullable = false)
     private Integer partnershipCost;   // 파트너쉽 비용
 
+    private String comment1;
+    private String comment2;
+    private String comment3;
+    private String googlePlaceId;
+
 //    @ElementCollection
 //    @Builder.Default
 //    private List<String> imageUrls = new ArrayList<>();
