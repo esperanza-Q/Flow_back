@@ -34,18 +34,20 @@ public class UserService implements UserDetailsService {
     private final ShopInfoRepository shopInfoRepository;
     private final PlaceRepository placeRepository;
     private final ProfileRepository profileRepository;
+    private final ShopInfoService shopInfoService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository, PlaceRepository placeRepository, ProfileRepository profileRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository, PlaceRepository placeRepository, ProfileRepository profileRepository, ShopInfoService shopInfoService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.shopInfoRepository = shopInfoRepository;
         this.placeRepository = placeRepository;
         this.profileRepository = profileRepository;
+        this.shopInfoService = shopInfoService;
     }
 
     // 🔑 회원가입 (비밀번호 암호화 후 저장)
-    public SignupResponseDTO signup(SignupRequestDTO requestDto) {
+    public SignupResponseDTO signup(SignupRequestDTO requestDto) throws Exception {
         User user = new User();
         user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
         user.setNickname(requestDto.getNickname());
@@ -57,32 +59,72 @@ public class UserService implements UserDetailsService {
         Long shopInfoId = null;
 
         // 만약 회원의 role이 SHOP이라면 ShopInfo도 생성
+//        if (user.getRole() == User.Role.SHOP) {
+//            ShopInfo shopInfo = new ShopInfo();
+////            Place place = new Place();
+//            shopInfo.setUser(user);
+//            shopInfo.setMonthPayment(0);
+//            String googlePlaceId = requestDto.getGooglePlaceId();
+//            shopInfo.setGooglePlaceId(googlePlaceId);
+//
+//
+//            ShopInfo updatedShop = shopInfoService.updateShopInfoWithGoogleReviews(shopInfoId, googlePlaceId);
+//
+//            LocalDate now = LocalDate.now();
+//            int currentMonth = now.getMonthValue(); // 1 ~ 12 값 반환
+//
+//            shopInfo.setNowMonth(currentMonth);
+//            shopInfo.setPartnershipCost(0);
+//
+//            ShopInfo savedShopInfo = shopInfoRepository.save(shopInfo);
+//
+//            Place place = Place.builder()
+//                    .shopInfo(shopInfo)
+//                    .location(requestDto.getLocation())
+//                    .category(requestDto.getCategory())
+//                    .longitude(requestDto.getLongitude())
+//                    .latitude(requestDto.getLatitude())
+//                    .build();
+//
+//            place.setShopInfo(shopInfo);
+//            place.setLocation(requestDto.getLocation());
+//
+//            placeRepository.save(place);
+//            shopInfoId = savedShopInfo.getShopInfoId();
+//        }
         if (user.getRole() == User.Role.SHOP) {
             ShopInfo shopInfo = new ShopInfo();
-//            Place place = new Place();
             shopInfo.setUser(user);
             shopInfo.setMonthPayment(0);
-
+            shopInfo.setGooglePlaceId(requestDto.getGooglePlaceId());
             LocalDate now = LocalDate.now();
-            int currentMonth = now.getMonthValue(); // 1 ~ 12 값 반환
-
-            shopInfo.setNowMonth(currentMonth);
+            shopInfo.setNowMonth(now.getMonthValue());
             shopInfo.setPartnershipCost(0);
 
+            // ✅ 먼저 저장 (여기서 ID가 생성됨)
             ShopInfo savedShopInfo = shopInfoRepository.save(shopInfo);
 
+            // ✅ 저장된 ID를 사용해서 리뷰/코멘트 업데이트
+            ShopInfo updatedShop = shopInfoService.updateShopInfoWithGoogleReviews(
+                    savedShopInfo.getShopInfoId(),
+                    requestDto.getGooglePlaceId()
+            );
+
+            // ✅ 업데이트 반영해서 다시 저장
+            savedShopInfo = shopInfoRepository.save(updatedShop);
+
             Place place = Place.builder()
-                    .shopInfo(shopInfo)
+                    .shopInfo(savedShopInfo)  // 꼭 savedShopInfo 참조
                     .location(requestDto.getLocation())
                     .category(requestDto.getCategory())
                     .longitude(requestDto.getLongitude())
                     .latitude(requestDto.getLatitude())
+//                    .explanationTitle("아직 설명이 없습니다.") // ✅ 기본값 또는 requestDto에서 가져오기
+//                    .explanationContent("아직 설명이 없습니다.") // 필요 시
                     .build();
 
-            place.setShopInfo(shopInfo);
-            place.setLocation(requestDto.getLocation());
-
             placeRepository.save(place);
+
             shopInfoId = savedShopInfo.getShopInfoId();
         }
 
