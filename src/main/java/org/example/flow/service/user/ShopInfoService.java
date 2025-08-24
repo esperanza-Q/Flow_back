@@ -9,6 +9,8 @@ import org.example.flow.repository.BusinessHoursRepository;
 import org.example.flow.repository.ShopImageRepository;
 import org.example.flow.repository.ShopInfoRepository;
 import org.example.flow.security.SecurityUtil;
+import org.example.flow.service.CommentSummaryService;
+import org.example.flow.service.GooglePlacesService;
 import org.example.flow.service.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,8 @@ public class ShopInfoService {
     private final BusinessHoursRepository businessHoursRepository;
     private final SecurityUtil securityUtil;
     private final ShopImageRepository shopImageRepository;
+    private final CommentSummaryService commentSummaryService;
+    private final GooglePlacesService googlePlacesService;
 
     @Transactional
     public void saveShopInfo(ShopInfoWriteRequestDTO dto) throws IOException {
@@ -118,4 +122,22 @@ public class ShopInfoService {
             throw new RuntimeException("S3 업로드 실패", e);
         }
     }
+
+    //OPENAI 리뷰
+    @Transactional
+    public ShopInfo updateShopInfoWithGoogleReviews(Long shopInfoId, String placeId) throws Exception {
+        // 1. ShopInfo 조회
+        ShopInfo shopInfo = shopInfoRepository.findById(shopInfoId)
+                .orElseThrow(() -> new RuntimeException("Shop not found"));
+
+        // 2. Google Places API 호출 → 리뷰 가져오기
+        List<String> reviews = googlePlacesService.fetchReviews(placeId);
+
+        // 3. 추천 코멘트 생성 및 ShopInfo에 저장
+        shopInfo = commentSummaryService.generateAndSetComments(shopInfo, reviews);
+
+        // 4. DB 저장
+        return shopInfoRepository.save(shopInfo);
+    }
+
 }

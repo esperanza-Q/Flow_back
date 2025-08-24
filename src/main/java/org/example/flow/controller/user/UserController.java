@@ -41,7 +41,7 @@ public class UserController {
 
     // 🔑 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<?> register(@RequestBody SignupRequestDTO request) {
+    public ResponseEntity<?> register(@RequestBody SignupRequestDTO request) throws Exception {
         userService.checkUser(request.getEmail()); // 중복 체크
         SignupResponseDTO response = userService.signup(request);
         return ResponseEntity.ok(response);
