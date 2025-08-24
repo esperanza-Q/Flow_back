@@ -1,6 +1,7 @@
 package org.example.flow.repository;
 
 import org.example.flow.entity.Place;
+import org.example.flow.entity.ShopInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,7 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
 
     List<Place> findByLocationContainingAndCategory(String district, Place.Category category);
 
+    Place findByShopInfo(ShopInfo shopInfo);
 
     Page<Place> findByCategory(Place.Category category, Pageable pageable);
 
