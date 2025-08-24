@@ -119,7 +119,7 @@ public class UserService implements UserDetailsService {
                     .category(requestDto.getCategory())
                     .longitude(requestDto.getLongitude())
                     .latitude(requestDto.getLatitude())
-//                    .explanationTitle("아직 설명이 없습니다.") // ✅ 기본값 또는 requestDto에서 가져오기
+                    .explanationTitle("아직 설명이 없습니다.") // ✅ 기본값 또는 requestDto에서 가져오기
 //                    .explanationContent("아직 설명이 없습니다.") // 필요 시
                     .build();
 
