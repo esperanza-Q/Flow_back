@@ -22,4 +22,5 @@ public class SignupRequestDTO {
     private Double latitude;
     private Double longitude;
     private Place.Category category;
+    private String googlePlaceId;
 }

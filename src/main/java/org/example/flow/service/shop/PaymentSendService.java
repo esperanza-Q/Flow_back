@@ -38,11 +38,11 @@ public class PaymentSendService {
 
         PaymentCheck saved = paymentCheckRepository.save(pc);
 
-        // Mapper 없이 여기서 바로 DTO 생성
+
         String createdAtUtc = saved.getCreatedAt()
                 .atOffset(ZoneOffset.UTC)
                 .toInstant()
-                .toString(); // 예: 2025-08-21T01:23:45Z
+                .toString();
 
         return new PaymentSendResponse(
                 saved.getPaymentCheckId(),

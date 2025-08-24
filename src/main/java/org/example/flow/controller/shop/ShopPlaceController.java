@@ -42,14 +42,6 @@ public class ShopPlaceController {
     private final PaymentConfirmService paymentConfirmService;
     private final RecommendFundingService recommendationFundingService;
 
-    // GET /api/shop/place?category=FOOD&page=0&size=20&sort=placeId,desc
-    @GetMapping("/place")
-    public Page<PlaceSimpleResponse> getPlaces(
-            @RequestParam(required = false) String category,
-            @PageableDefault(size = 20, sort = "placeId", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        return placeQueryService.getPlaces(category, pageable);
-    }
 
     @GetMapping("/place/nearby")
     public List<PlaceNearbyResponse> getNearbyPlaces(

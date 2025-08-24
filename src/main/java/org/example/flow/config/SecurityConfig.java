@@ -54,9 +54,12 @@ public class SecurityConfig {
                                 "/api/user/**",
                                 "/api/shopMypage/**",
                                 "/api/shop/**",
-                                "/api/**",
-                                "/api/shopMypage/**",
-                                "/api/health"
+                                "/api/rewardShop/**",
+                                "/api/funding/**",
+                                "/api/health",
+                                "/api/home/**",
+                                "/api/geo",
+                                "/api/location"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
