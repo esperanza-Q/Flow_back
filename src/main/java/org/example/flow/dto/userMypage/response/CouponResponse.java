@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class CouponResponse {
     private List<CouponDto> content;
 
-    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
     public static CouponResponse from(List<ReceiveCoupon> coupons) {
         return new CouponResponse(
                 coupons.stream().map(CouponDto::from).collect(Collectors.toList())
@@ -33,7 +32,6 @@ public class CouponResponse {
         private Visit visit;   // VISIT일 때만 값
 
 
-        //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
         public static CouponDto from(ReceiveCoupon c) {
             String type;
             Reward reward = null;
