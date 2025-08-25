@@ -92,7 +92,7 @@ public class SecurityConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         // Vercel 배포 URL + 로컬 개발 환경 추가
-                        .allowedOrigins("http://localhost:3000", "https://myapp.vercel.app", "myapp://")
+                        .allowedOrigins("http://localhost:5177", "https://myapp.vercel.app", "myapp://")
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

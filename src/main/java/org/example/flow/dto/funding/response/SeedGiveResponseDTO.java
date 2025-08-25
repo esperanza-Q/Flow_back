@@ -9,5 +9,5 @@ import lombok.*;
 @Builder
 public class SeedGiveResponseDTO {
     private String message;
-    private Boolean first;
+//    private Boolean first;
 }
