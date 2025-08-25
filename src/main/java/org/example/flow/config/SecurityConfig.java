@@ -94,7 +94,8 @@ public class SecurityConfig {
                         // Vercel 배포 URL + 로컬 개발 환경 추가
                         .allowedOrigins("http://localhost:5177", "https://flow-frontend-azure.vercel.app")
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
+//                        .allowedHeaders("*")
+                        .allowedHeaders("Authorization", "Content-Type", "Accept")
                         .allowCredentials(true);
             }
         };
