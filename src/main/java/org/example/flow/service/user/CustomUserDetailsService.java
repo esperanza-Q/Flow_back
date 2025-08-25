@@ -31,7 +31,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email));
 
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
         // 여기서 무조건 CustomUserDetails 반환
+        // 🔹 로그: 반환되는 UserDetails 타입
+        System.out.println("[CustomUserDetailsService] Returning: " + customUserDetails.getClass().getName());
+
+
         return new CustomUserDetails(user);
     }
 }
