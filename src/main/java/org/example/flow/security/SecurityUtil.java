@@ -11,9 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityUtil {
 
-    private SecurityUtil() {
-        // 유틸 클래스 인스턴스화 방지
-    }
+    private SecurityUtil() {} // 인스턴스화 방지
 
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -24,8 +22,8 @@ public class SecurityUtil {
 
         Object principal = authentication.getPrincipal();
 
-        if (principal instanceof CustomUserDetails customUserDetails) { // 🔹 CustomUserDetails로 고정
-            return customUserDetails.getUser();
+        if (principal instanceof CustomUserDetails) {
+            return ((CustomUserDetails) principal).getUser();
         }
 
         throw new RuntimeException("지원하지 않는 principal 타입: " + principal.getClass().getName());

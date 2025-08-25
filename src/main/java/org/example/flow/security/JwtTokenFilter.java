@@ -66,13 +66,14 @@ import java.io.IOException;
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository; // 🔹 UserDetailsService 대신 직접 사용
+    private final UserRepository userRepository; // CustomUserDetails 생성용
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        // 인증 제외 경로
         String path = request.getServletPath();
         if (path.startsWith("/api/auth/") ||
                 path.startsWith("/api/users/signup") ||
@@ -90,7 +91,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmail(token);
 
-            // UserDetailsService 대신 UserRepository로 바로 User 가져오기
+            // 항상 CustomUserDetails 사용
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
@@ -99,11 +100,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-
 
         filterChain.doFilter(request, response);
     }
