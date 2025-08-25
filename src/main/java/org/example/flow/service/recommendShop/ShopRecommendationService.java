@@ -8,6 +8,7 @@ import org.example.flow.repository.RecommendVisitLogRepository;
 import org.example.flow.repository.ShopInfoRepository;
 import org.example.flow.service.WeatherService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ public class ShopRecommendationService {
     private final WeatherService weatherService;
     private final PlaceRepository placeRepository;
 
+    @Transactional(readOnly = false)
     public ShopInfo recommendShop(User user, LocalDateTime now) {
 
         String weather = weatherService.getTodayWeather(); // 오늘 날씨 가져오기
