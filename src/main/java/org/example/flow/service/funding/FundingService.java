@@ -112,9 +112,13 @@ public class FundingService {
             funding.setStatus(Funding.STATUS.FINISHED);
         }
 
+        if(dto.getFundedSeeds()>=300){
+            profile.setSeeds(profile.getPoint()+30);
+        }
+
         SeedGiveResponseDTO responseDTO = SeedGiveResponseDTO.builder()
                 .message("성공적으로 펀딩을 완료했습니다")
-                .first(first)
+//                .first(first)
                 .build();
 
 //        if(first){

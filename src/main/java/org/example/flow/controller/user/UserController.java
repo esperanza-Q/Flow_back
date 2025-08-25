@@ -67,8 +67,8 @@ public class UserController {
     }
 
     @PostMapping("/writeShopInfo")
-    public ResponseEntity<String> writeShopInfo(@ModelAttribute ShopInfoWriteRequestDTO request) throws IOException {
-        shopInfoService.saveShopInfo(request);
+    public ResponseEntity<String> writeShopInfo(@ModelAttribute ShopInfoWriteRequestDTO request, @RequestParam Long userId) throws IOException {
+        shopInfoService.saveShopInfo(request, userId);
         return ResponseEntity.ok("ShopInfo 저장 성공");
     }
 

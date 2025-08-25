@@ -19,11 +19,26 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+//    @Override
+//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+//        return new CustomUserDetails(user); // 네가 만든 CustomUserDetails 사용
+//    }
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-        return new CustomUserDetails(user); // 네가 만든 CustomUserDetails 사용
+                .orElseThrow(() -> new UsernameNotFoundException(email));
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
+        // 여기서 무조건 CustomUserDetails 반환
+        // 🔹 로그: 반환되는 UserDetails 타입
+        System.out.println("[CustomUserDetailsService] Returning: " + customUserDetails.getClass().getName());
+
+
+        return new CustomUserDetails(user);
     }
 }
 

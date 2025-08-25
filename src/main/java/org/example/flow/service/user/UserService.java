@@ -6,16 +6,11 @@ import org.example.flow.dto.user.request.LoginRequestDTO;
 import org.example.flow.dto.user.request.SignupRequestDTO;
 import org.example.flow.dto.user.response.LoginResponseDTO;
 import org.example.flow.dto.user.response.SignupResponseDTO;
-import org.example.flow.entity.Place;
-import org.example.flow.entity.Profile;
-import org.example.flow.entity.ShopInfo;
-import org.example.flow.entity.User;
-import org.example.flow.repository.PlaceRepository;
-import org.example.flow.repository.ProfileRepository;
-import org.example.flow.repository.ShopInfoRepository;
-import org.example.flow.repository.UserRepository;
+import org.example.flow.entity.*;
+import org.example.flow.repository.*;
 import org.example.flow.security.CustomUserDetails;
 import org.example.flow.security.JwtTokenProvider;
+import org.example.flow.service.recommendShop.ShopRecommendationService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -35,8 +31,10 @@ public class UserService implements UserDetailsService {
     private final PlaceRepository placeRepository;
     private final ProfileRepository profileRepository;
     private final ShopInfoService shopInfoService;
+    private final ShopRecommendationService shopRecommendationService;
+    private final RecommendShopRepository recommendShopRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository, PlaceRepository placeRepository, ProfileRepository profileRepository, ShopInfoService shopInfoService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, ShopInfoRepository shopInfoRepository, PlaceRepository placeRepository, ProfileRepository profileRepository, ShopInfoService shopInfoService, ShopRecommendationService shopRecommendationService, RecommendShopRepository recommendShopRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -44,6 +42,8 @@ public class UserService implements UserDetailsService {
         this.placeRepository = placeRepository;
         this.profileRepository = profileRepository;
         this.shopInfoService = shopInfoService;
+        this.shopRecommendationService = shopRecommendationService;
+        this.recommendShopRepository = recommendShopRepository;
     }
 
     // 🔑 회원가입 (비밀번호 암호화 후 저장)
@@ -133,6 +133,9 @@ public class UserService implements UserDetailsService {
             Profile profile = new Profile();
             profile.setUser(user);
             profileRepository.save(profile);
+
+            shopRecommendationService.recommendShop(user, LocalDateTime.now());
+//            recommendShopRepository.save(recommended);
         }
 
             return new SignupResponseDTO(user.getUserId(), shopInfoId);

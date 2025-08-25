@@ -2,6 +2,8 @@ package org.example.flow.service.shopMypage;
 
 import org.example.flow.dto.shopMypage.request.AcceptPaymentRequest;
 import org.example.flow.dto.shopMypage.response.*;
+import org.example.flow.service.recommendation.PaymentConfirmService;
+import org.example.flow.service.recommendation.RewardService;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +42,8 @@ public class ShopMypageService {
     private final BenefitReqRepository benefitReqRepository;
     private final PaymentCheckRepository paymentCheckRepository;
     private final RewardCouponRepository rewardCouponRepository;
+    private final RewardService rewardService;
+    private final PaymentConfirmService paymentConfirmService;
 
     private static final DateTimeFormatter TF = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter TF_SHORT = DateTimeFormatter.ofPattern("HH:mm");
@@ -262,17 +268,6 @@ public class ShopMypageService {
             default -> throw new ResponseStatusException(BAD_REQUEST, "Invalid week: " + week);
         };
     }
-
-    //‼️‼️‼️‼️여기 수정 필요‼️‼️‼️‼️
-    // "09:00" -> Date 변환
-//    private LocalTime parseTime(String hhmm) {
-//        try {
-//            return new SimpleDateFormat("HH:mm").parse(hhmm);
-//        } catch (Exception e) {
-//            throw new ResponseStatusException(BAD_REQUEST, "Invalid time format: " + hhmm);
-//        }
-//    }
-
     //결제 요청 리스트 조회
     public PaymentCheckListResponse getPaymentChecks(Long shopInfoId, String status, String sortParam) {
         if (shopInfoId == null) {
@@ -337,32 +332,65 @@ public class ShopMypageService {
 
     //결제 요청 승인
     @Transactional
-    public PaymentCheckResponse acceptPaymentCheck(Long paymentCheckId, AcceptPaymentRequest req) {
-        if (req == null || req.getAmount() == null || req.getAmount() <= 0) {
-            throw new ResponseStatusException(BAD_REQUEST, "amount must be a positive integer");
-        }
-
+    public PaymentCheckResponse acceptPaymentCheck(Long paymentCheckId, AcceptPaymentRequest request) {
         PaymentCheck pc = paymentCheckRepository.findById(paymentCheckId)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "PaymentCheck not found"));
+                .orElseThrow(() -> new IllegalArgumentException("payment_check not found: id=" + paymentCheckId));
 
-        // 상태 검증: WAITING만 허용
-        if (pc.getStatus() != PaymentCheck.STATUS.WAITING) {
-            throw new ResponseStatusException(BAD_REQUEST, "Only WAITING can be accepted");
+        if (pc.getStatus() == PaymentCheck.STATUS.REJECT) {
+            throw new IllegalStateException("Already REJECT. Cannot accept: id=" + paymentCheckId);
         }
 
-        // 금액 & 상태 갱신
-        pc.setAmount(req.getAmount());
-        pc.setStatus(PaymentCheck.STATUS.ACCEPT);
-        paymentCheckRepository.save(pc); // 변경감지여도 save 해도 무방
+        // (선택) amount 반영
+        if (request != null && request.getAmount() != null) {
+            pc.setAmount(request.getAmount());
+        }
 
-        return new PaymentCheckResponse(
-                pc.getPaymentCheckId(),
-                pc.getUser() != null ? pc.getUser().getUserId() : null,
-                pc.getShopInfo() != null ? pc.getShopInfo().getShopInfoId() : null,
-                pc.getAmount(),
-                pc.getStatus().name(),
-                pc.getCreatedAt()
+        // 🔑 '첫 승인'인지 판단
+        boolean justAccepted = (pc.getStatus() != PaymentCheck.STATUS.ACCEPT);
+
+        if (justAccepted) {
+            pc.setStatus(PaymentCheck.STATUS.ACCEPT);
+            paymentCheckRepository.save(pc);
+            paymentCheckRepository.flush(); // 즉시 반영
+        }
+
+        Long userId = pc.getUser().getUserId();
+        Long shopInfoId = pc.getShopInfo().getShopInfoId();
+        long amount = (pc.getAmount() != null) ? pc.getAmount().longValue() : 0L;
+
+        // 🔑 첫 승인 여부를 confirm에 전달
+        Map<String, Object> confirm = paymentConfirmService.confirm(
+                paymentCheckId, userId, shopInfoId, amount, justAccepted
         );
+
+        boolean matched          = (boolean) confirm.getOrDefault("matched", false);
+        boolean counted          = (boolean) confirm.getOrDefault("counted", false);
+        int     countThisWeek    = ((Number) confirm.getOrDefault("countThisWeek", 0)).intValue();
+        boolean awarded50        = (boolean) confirm.getOrDefault("awarded50", false);
+        boolean awarded100       = (boolean) confirm.getOrDefault("awarded100", false);
+        Long    nextRecommendId  = (confirm.get("nextRecommendShopId") instanceof Number n) ? n.longValue() : null;
+        int     paymentPoints    = ((Number) confirm.getOrDefault("paymentPoints", 0)).intValue();
+
+        return PaymentCheckResponse.builder()
+                .paymentCheckId(paymentCheckId)
+                .userId(userId)
+                .shopInfoId(shopInfoId)
+                .amount(amount)
+                .status("ACCEPT")
+                .createdAt(toUtcString(pc.getCreatedAt()))
+                .matched(matched)
+                .paymentPoints(paymentPoints)
+                .nextRecommendShopId(matched ? nextRecommendId : null)  // next는 여전히 matched 기준
+                .counted(counted)                  // ✅ matched=false여도 첫 승인이라면 true
+                .countThisWeek(countThisWeek)
+                .awarded50(awarded50)              // matched=false 경로에서는 false
+                .awarded100(awarded100)            // matched=false 경로에서는 false
+                .build();
+    }
+
+    private String toUtcString(java.time.LocalDateTime ldt) {
+        if (ldt == null) return OffsetDateTime.now(ZoneOffset.UTC).toString();
+        return ldt.atOffset(ZoneOffset.UTC).toString();
     }
 
 
