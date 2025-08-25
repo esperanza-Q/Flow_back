@@ -35,7 +35,7 @@ public class Place {
     @Column(nullable = true)
     private Double latitude;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Double longitude;
 
     public enum Category {
