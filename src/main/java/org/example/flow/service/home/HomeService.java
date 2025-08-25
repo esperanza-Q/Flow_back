@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class HomeService {
 
     private final ProfileRepository profileRepository;

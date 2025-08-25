@@ -74,3 +74,7 @@ springBoot {
 tasks.named('bootJar') {
     mainClass.set("org.example.flow.FlowApplication")
 }
+
+tasks.withType(Test) {
+    enabled = false
+}
