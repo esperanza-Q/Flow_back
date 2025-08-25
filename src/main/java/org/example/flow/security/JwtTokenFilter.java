@@ -90,18 +90,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmail(token);
 
-            User user = userRepository.findByEmail(email) // 🔹 직접 조회
-                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+            // UserDetailsService 대신 UserRepository로 바로 User 가져오기
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
-            CustomUserDetails customUserDetails = new CustomUserDetails(user); // 🔹 CustomUserDetails 생성
+            CustomUserDetails userDetails = new CustomUserDetails(user);
 
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication); // 🔹 SecurityContext에 설정
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
 
         filterChain.doFilter(request, response);
     }
