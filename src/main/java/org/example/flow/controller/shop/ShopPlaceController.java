@@ -70,15 +70,30 @@ public class ShopPlaceController {
     }
 
     // 💳 결제 확정 → 슬라이딩 지급
+    // 💳 결제 확정 → (1) AI 슬라이딩 지급 → (2) 방문소진 + 다음추천 생성
     @PostMapping(
             value = "/payment/confirm",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Map<String, Object> confirmPayment(@RequestBody @Valid PaymentConfirmRequest req) {
-        // 콘솔에서 어떤 Verifier가 물렸는지 확인용
-        return paymentConfirmService.confirm(req.userId(), req.shopInfoId());
+    public ResponseEntity<Map<String, Object>> confirmPayment(@RequestBody @Valid PaymentConfirmRequest req) {
+        /* ───────── 권장(A): DTO에 금액/확정 여부가 있는 경우 ───────── */
+        Map<String, Object> result = paymentConfirmService.confirm(
+                req.userId(),
+                req.shopInfoId(),
+                req.amount()
+        );
+
+        /* ───────── 대안(B): DTO에 금액/확정 여부가 없다면 아래로 교체 ─────────
+        Map<String, Object> result = paymentConfirmService.confirm(
+                req.userId(),
+                req.shopInfoId()
+        );
+        */
+
+        return ResponseEntity.ok(result);
     }
+
 
     // 📆 체크인 → (추천이면) 주간 카운트 증가 & 3/5회 보상
     @PostMapping("/shop/check-in")

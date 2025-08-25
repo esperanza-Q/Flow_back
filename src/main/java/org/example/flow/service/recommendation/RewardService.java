@@ -3,22 +3,31 @@ package org.example.flow.service.recommendation;
 import lombok.RequiredArgsConstructor;
 import org.example.flow.entity.Profile;
 import org.example.flow.repository.ProfileRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class RewardService {
 
     private final ProfileRepository profileRepository;
-    private final RecommendationVerifier recommendationVerifier; // 현재 추천 여부 재검증
+    private final RecommendationVerifier recommendationVerifier;
     private final WeeklyAiVisitCounterService weeklyAiVisitCounterService; // 아래 2) 참고
+
+    public RewardService(
+            ProfileRepository profileRepository,
+            @Qualifier("acceptPaymentVerifier") RecommendationVerifier recommendationVerifier, // ← 여기!
+            WeeklyAiVisitCounterService weeklyAiVisitCounterService
+    ) {
+        this.profileRepository = profileRepository;
+        this.recommendationVerifier = recommendationVerifier;
+        this.weeklyAiVisitCounterService = weeklyAiVisitCounterService;
+    }
 
     /* ───────── 💳 AI 추천 매장 결제: 금액 구간 슬라이딩 ───────── */
     public boolean awardAiRecommendedPayment(Long userId, Long shopInfoId, long paidAmount) {
-        if (!recommendationVerifier.isRecommended(userId, shopInfoId, null)) return false;
-
+        if (!recommendationVerifier.isRecommended(userId, shopInfoId, null)) return false; // ✅ now=null 허용
         int pts = calcAiPaymentPoints(paidAmount);
         addPoint(userId, pts, "AI 추천매장 결제 리워드(슬라이딩)");
         return true;

@@ -51,9 +51,13 @@ public class HomeRecommendService {
 
         // comment 리스트
         List<RecommendShopResponse.Comment> comments = new ArrayList<>();
-        if (rs.getComment1() != null && !rs.getComment1().isBlank()) comments.add(new RecommendShopResponse.Comment(rs.getComment1()));
-        if (rs.getComment2() != null && !rs.getComment2().isBlank()) comments.add(new RecommendShopResponse.Comment(rs.getComment2()));
-        if (rs.getComment3() != null && !rs.getComment3().isBlank()) comments.add(new RecommendShopResponse.Comment(rs.getComment3()));
+
+        if (rs.getRecommendInfo() != null && !rs.getRecommendInfo().isBlank()) {
+            for (String line : rs.getRecommendInfo().split("\\r?\\n")) {
+                String trimmed = line.trim();
+                if (!trimmed.isBlank()) comments.add(new RecommendShopResponse.Comment(trimmed));
+            }
+        }
 
         // 쿠폰 타입 판별 (보유 여부)
         boolean hasReward = !receiveRewardCouponRepository
