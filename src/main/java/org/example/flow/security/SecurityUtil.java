@@ -11,10 +11,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecurityUtil {
 
-    private SecurityUtil() {} // 인스턴스화 방지
+    private SecurityUtil() {}
 
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // 🔹 로그: authentication 존재 여부
+        System.out.println("[SecurityUtil] Authentication: " + (authentication != null ? authentication.getClass().getName() : "null"));
 
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("인증 정보가 없습니다.");
@@ -22,19 +25,14 @@ public class SecurityUtil {
 
         Object principal = authentication.getPrincipal();
 
+        // 🔹 로그: principal 타입
+        System.out.println("[SecurityUtil] Principal type: " + principal.getClass().getName());
+
         if (principal instanceof CustomUserDetails) {
             return ((CustomUserDetails) principal).getUser();
         }
 
         throw new RuntimeException("지원하지 않는 principal 타입: " + principal.getClass().getName());
-    }
-
-    public static Long getCurrentUserId() {
-        return getCurrentUser().getUserId();
-    }
-
-    public static String getCurrentUserEmail() {
-        return getCurrentUser().getEmail();
     }
 }
 //public class SecurityUtil {
