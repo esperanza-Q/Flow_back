@@ -19,11 +19,20 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+//    @Override
+//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+//        return new CustomUserDetails(user); // 네가 만든 CustomUserDetails 사용
+//    }
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-        return new CustomUserDetails(user); // 네가 만든 CustomUserDetails 사용
+                .orElseThrow(() -> new UsernameNotFoundException(email));
+
+        // 여기서 무조건 CustomUserDetails 반환
+        return new CustomUserDetails(user);
     }
 }
 
