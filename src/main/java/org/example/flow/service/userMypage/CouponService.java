@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class CouponService {
 
     private final ReceiveCouponRepository receiveCouponRepository;

@@ -27,7 +27,7 @@ public class ShopRecommendationService {
     private final WeatherService weatherService;
     private final PlaceRepository placeRepository;
 
-    @Transactional(readOnly = false)
+    @Transactional
     public ShopInfo recommendShop(User user, LocalDateTime now) {
 
         String weather = weatherService.getTodayWeather(); // 오늘 날씨 가져오기
