@@ -109,11 +109,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository; // 🔹 수정됨
+    private final UserDetailsService userDetailsService; // 🔹 수정됨
 
     @Bean
     public JwtTokenFilter jwtTokenFilter() {
-        return new JwtTokenFilter(jwtTokenProvider, userRepository); // 🔹 UserDetailsService -> UserRepository
+        return new JwtTokenFilter(jwtTokenProvider, userDetailsService); // 🔹 UserDetailsService -> UserRepository
     }
 
     @Bean

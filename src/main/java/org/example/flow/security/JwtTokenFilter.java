@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.flow.entity.User;
 import org.example.flow.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -66,42 +67,36 @@ import java.io.IOException;
 public class JwtTokenFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository; // CustomUserDetails 생성용
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
-        // 인증 제외 경로
-        String path = request.getServletPath();
-        if (path.startsWith("/api/auth/") ||
-                path.startsWith("/api/users/signup") ||
-                path.startsWith("/api/users/login") ||
-                path.startsWith("/api/health") ||
-                path.startsWith("/actuator/") ||
-                path.equals("/favicon.ico") ||
-                path.startsWith("/static/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
 
         String token = jwtTokenProvider.resolveToken(request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmail(token);
+            Object userDetails = userDetailsService.loadUserByUsername(email);
 
-            // 항상 CustomUserDetails 사용
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
-
-            CustomUserDetails userDetails = new CustomUserDetails(user);
+            // 🔹 로그: principal 타입
+            System.out.println("[JwtTokenFilter] loadUserByUsername returns: " + userDetails.getClass().getName());
 
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userDetails, null,
+                            userDetails instanceof UserDetails ? ((UserDetails) userDetails).getAuthorities() : null);
+
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
+        // 🔹 로그: SecurityContextHolder에 있는 Authentication 타입
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("[JwtTokenFilter] SecurityContext Authentication: " +
+                (auth != null ? auth.getClass().getName() + ", principal=" + auth.getPrincipal().getClass().getName() : "null"));
 
         filterChain.doFilter(request, response);
     }
