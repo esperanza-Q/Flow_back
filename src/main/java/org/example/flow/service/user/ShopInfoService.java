@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.flow.dto.user.request.BusinessHoursDTO;
 import org.example.flow.dto.user.request.ShopInfoWriteRequestDTO;
 import org.example.flow.entity.*;
-import org.example.flow.repository.BenefitReqRepository;
-import org.example.flow.repository.BusinessHoursRepository;
-import org.example.flow.repository.ShopImageRepository;
-import org.example.flow.repository.ShopInfoRepository;
+import org.example.flow.repository.*;
 import org.example.flow.security.SecurityUtil;
 import org.example.flow.service.CommentSummaryService;
 import org.example.flow.service.GooglePlacesService;
@@ -19,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +30,12 @@ public class ShopInfoService {
     private final ShopImageRepository shopImageRepository;
     private final CommentSummaryService commentSummaryService;
     private final GooglePlacesService googlePlacesService;
+    private final UserRepository userRepository;
 
     @Transactional
-    public void saveShopInfo(ShopInfoWriteRequestDTO dto) throws IOException {
-        User user = securityUtil.getCurrentUser();
+    public void saveShopInfo(ShopInfoWriteRequestDTO dto, Long userId) throws IOException {
+//        User user = securityUtil.getCurrentUser();
+        User user = userRepository.findById(userId).orElseThrow();
 
         // 1. 기존 ShopInfo 조회
         ShopInfo shopInfo = shopInfoRepository.findById(dto.getShopInfoId())
